@@ -18,8 +18,6 @@ import {
   MessageCircle,
   Menu,
   X,
-  UserRound,
-  Bike,
 } from "lucide-react";
 
 const phoneCarouselIntervalMs = 5500;
@@ -260,15 +258,21 @@ function MobileAppSelector() {
               <div className="mt-5 space-y-3">
                 <a
                   href="https://buyer.kronix.co/instalar"
-                  className="flex items-center gap-4 rounded-[22px] border border-emerald-300/20 bg-emerald-500 px-4 py-4 text-slate-950 shadow-lg shadow-emerald-500/15 transition active:scale-[0.99]"
+                  className="grid min-h-[84px] grid-cols-[56px_minmax(0,1fr)_20px] items-center gap-3 rounded-[22px] border border-emerald-300/20 bg-emerald-500 px-4 py-3 text-slate-950 shadow-lg shadow-emerald-500/15 transition active:scale-[0.99]"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/25">
-                    <UserRound className="h-6 w-6" />
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-950/90 ring-1 ring-white/20">
+                    <Image
+                      src="/apps/buyer.png"
+                      alt="Aplicación KRONIX para clientes"
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="text-lg font-black">Usar KRONIX</div>
-                    <div className="mt-0.5 text-xs font-semibold text-slate-900/75">
+                  <div className="min-w-0">
+                    <div className="text-base font-black leading-5">Usar KRONIX</div>
+                    <div className="mt-1 text-[11px] font-semibold leading-4 text-slate-900/75">
                       Comprar, pedir servicios, enviar paquetes y más
                     </div>
                   </div>
@@ -278,15 +282,21 @@ function MobileAppSelector() {
 
                 <a
                   href="https://driver.kronix.co/instalar"
-                  className="flex items-center gap-4 rounded-[22px] border border-cyan-300/20 bg-blue-600 px-4 py-4 text-white shadow-lg shadow-blue-600/15 transition active:scale-[0.99]"
+                  className="grid min-h-[84px] grid-cols-[56px_minmax(0,1fr)_20px] items-center gap-3 rounded-[22px] border border-cyan-300/20 bg-blue-600 px-4 py-3 text-white shadow-lg shadow-blue-600/15 transition active:scale-[0.99]"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15">
-                    <Bike className="h-6 w-6" />
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-950/90 ring-1 ring-white/20">
+                    <Image
+                      src="/apps/worker.png"
+                      alt="Aplicación KRONIX para trabajadores"
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="text-lg font-black">Trabajar con KRONIX</div>
-                    <div className="mt-0.5 text-xs font-semibold text-white/80">
+                  <div className="min-w-0">
+                    <div className="text-base font-black leading-5">Trabajar con KRONIX</div>
+                    <div className="mt-1 text-[11px] font-semibold leading-4 text-white/80">
                       Recibir servicios y generar ingresos
                     </div>
                   </div>
