@@ -17,6 +17,9 @@ import {
   MapPin,
   MessageCircle,
   Menu,
+  X,
+  UserRound,
+  Bike,
 } from "lucide-react";
 
 const phoneCarouselIntervalMs = 5500;
@@ -187,9 +190,130 @@ function FeatureRowCard({
   );
 }
 
+
+function MobileAppSelector() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+
+    const sync = () => {
+      setOpen(media.matches);
+    };
+
+    sync();
+    media.addEventListener("change", sync);
+
+    return () => {
+      media.removeEventListener("change", sync);
+    };
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className="fixed inset-0 z-[9999] flex items-end bg-slate-950/75 px-3 pb-3 backdrop-blur-sm md:hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mobile-app-selector-title"
+        >
+          <motion.div
+            className="relative mx-auto w-full max-w-md overflow-hidden rounded-[30px] border border-white/10 bg-[#071523] shadow-[0_30px_90px_rgba(0,0,0,0.55)]"
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 30 }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.20),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.14),transparent_38%)]" />
+
+            <div className="relative p-5">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80"
+                aria-label="Continuar viendo el sitio web"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="pr-12">
+                <div className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-300">
+                  Bienvenido a KRONIX
+                </div>
+
+                <h2
+                  id="mobile-app-selector-title"
+                  className="mt-4 text-3xl font-black leading-tight text-white"
+                >
+                  ¿Qué deseas hacer?
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  Elige la experiencia que necesitas en este momento.
+                </p>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                <a
+                  href="https://buyer.kronix.co/instalar"
+                  className="flex items-center gap-4 rounded-[22px] border border-emerald-300/20 bg-emerald-500 px-4 py-4 text-slate-950 shadow-lg shadow-emerald-500/15 transition active:scale-[0.99]"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/25">
+                    <UserRound className="h-6 w-6" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="text-lg font-black">Usar KRONIX</div>
+                    <div className="mt-0.5 text-xs font-semibold text-slate-900/75">
+                      Comprar, pedir servicios, enviar paquetes y más
+                    </div>
+                  </div>
+
+                  <ArrowRight className="h-5 w-5 shrink-0" />
+                </a>
+
+                <a
+                  href="https://driver.kronix.co/instalar"
+                  className="flex items-center gap-4 rounded-[22px] border border-cyan-300/20 bg-blue-600 px-4 py-4 text-white shadow-lg shadow-blue-600/15 transition active:scale-[0.99]"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+                    <Bike className="h-6 w-6" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="text-lg font-black">Trabajar con KRONIX</div>
+                    <div className="mt-0.5 text-xs font-semibold text-white/80">
+                      Recibir servicios y generar ingresos
+                    </div>
+                  </div>
+
+                  <ArrowRight className="h-5 w-5 shrink-0" />
+                </a>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white/85"
+              >
+                Continuar viendo kronix.co
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
 export default function KronixLandingPage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
+      <MobileAppSelector />
       <section className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.20),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.14),transparent_24%),linear-gradient(180deg,#04101d_0%,#051223_50%,#040c17_100%)]" />
         <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:42px_42px]" />
