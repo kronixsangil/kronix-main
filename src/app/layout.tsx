@@ -12,9 +12,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "KroniX",
-  description: "Todo lo que necesitas, cuando lo necesitas.",
+export const metadata: Metadata = {
+  metadataBase: new URL("https://kronix.co"),
+  title: "KroniX | Tecnología local que mueve tu ciudad",
+  description: "KroniX conecta personas, trabajadores y negocios en San Gil y Granada. Servicios locales, entregas, establecimientos y viajes compartidos.",
+  keywords: ["KroniX", "servicios locales", "domicilios", "San Gil", "Granada Meta", "Ruta KroniX", "KroniX Pro"],
+  openGraph: {
+    title: "KroniX | Tu ciudad, tus oportunidades, una sola red",
+    description: "Tecnología local para conectar personas, trabajadores, negocios y ciudades.",
+    url: "https://kronix.co",
+    siteName: "KroniX",
+    locale: "es_CO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KroniX | Tecnología local que mueve tu ciudad",
+    description: "Servicios, oportunidades, establecimientos y viajes compartidos en una sola red.",
+  },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -29,7 +44,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
     </html>
   );
 }

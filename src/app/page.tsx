@@ -1,595 +1,158 @@
-//src\app\page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  ArrowRight,
-  CheckCircle2,
-  ShoppingBag,
-  Package,
-  ClipboardList,
-  Store,
-  Zap,
-  ShieldCheck,
-  MapPin,
-  MessageCircle,
-  Menu,
-  X,
+  ArrowRight, BriefcaseBusiness, Building2, CarFront, Check, ChevronRight,
+  Handshake, Headphones, MapPin, Menu, PackageCheck, Route, ShieldCheck,
+  ShoppingBag, Smartphone, Store, UsersRound, X, Zap,
 } from "lucide-react";
+import { useState } from "react";
 
-const phoneCarouselIntervalMs = 5500;
-
-const headerLogoControls = {
-  scale: "scale-[3.0]",
-  translateX: "translate-x-[-40px]",
-  translateY: "translate-y-10",
-};
-
-const motoLeftControls = {
-  scale: "scale-[1.7]",
-  translateX: "translate-x-[-150px]",
-  translateY: "translate-y-[140px]",
-};
-
-const motoRightControls = {
-  scale: "scale-[1.0]",
-  translateX: "translate-x-[35px]",
-  translateY: "translate-y-[135px]",
-};
-
-const buyerScreens = [
-  "/branding/kronix/buyer-screen-1.png",
-  "/branding/kronix/buyer-screen-2.png",
-  "/branding/kronix/buyer-screen-3.png",
+const navItems = [
+  { label: "Ecosistema", href: "#ecosistema" },
+  { label: "Qué hacemos", href: "#servicios" },
+  { label: "Ciudades", href: "#ciudades" },
+  { label: "Para negocios", href: "#aliados" },
 ];
 
-const services = [
-  { title: "Compra", icon: ShoppingBag },
-  { title: "Envíos", icon: Package },
-  { title: "Recoge", icon: MapPin },
-  { title: "Diligencias", icon: ClipboardList },
-];
-
-const miniHighlights = [
-  { title: "RÁPIDO", description: "Entregas en minutos", icon: Zap },
-  { title: "SEGURO", description: "Protegemos tus datos", icon: ShieldCheck },
-  { title: "LOCAL", description: "Apoya tu ciudad", icon: MapPin },
-];
-
-const featureCards = [
+const experiences = [
   {
-    title: "Rápido",
-    description: "Solicita en minutos y recibe apoyo cuando lo necesites.",
-    icon: Zap,
-    image: "/branding/kronix/rapido.png",
+    eyebrow: "PARA TU DÍA A DÍA", title: "KroniX",
+    description: "Pide servicios locales, solicita entregas y compra en establecimientos de tu ciudad desde una sola experiencia.",
+    icon: Smartphone, tone: "blue", image: "/apps/buyer.png",
+    points: ["Servicios cerca de ti", "Seguimiento de solicitudes", "Soporte local"],
+    cta: "Abrir KroniX", href: "https://buyer.kronix.co",
   },
   {
-    title: "Seguro",
-    description:
-      "Tus compras y datos siempre protegidos con los más altos estándares.",
-    icon: ShieldCheck,
-    image: "/branding/kronix/seguro.png",
+    eyebrow: "PARA TRABAJADORES INDEPENDIENTES", title: "KroniX Pro",
+    description: "La herramienta de quienes prestan servicios, reciben oportunidades y gestionan su actividad en KroniX.",
+    icon: BriefcaseBusiness, tone: "green", image: "/apps/worker.png",
+    points: ["Oportunidades en tu ciudad", "Gestión desde el celular", "Trabajo independiente"],
+    cta: "Quiero trabajar con KroniX", href: "#contacto",
   },
   {
-    title: "Local",
-    description: "Apoya a tiendas y emprendedores de San Gil. Juntos crecemos.",
-    icon: MapPin,
-    image: "/branding/kronix/local.png",
+    eyebrow: "VIAJES COMPARTIDOS", title: "Ruta KroniX",
+    description: "Conecta conductores con puestos disponibles y personas que van hacia el mismo destino, con puntos y asientos claros.",
+    icon: Route, tone: "cyan", image: null,
+    points: ["Publica o busca un viaje", "Elige puntos y puestos", "Perfiles verificados"],
+    cta: "Conocer Ruta KroniX", href: "#ruta-kronix",
   },
 ];
 
-const stats = [
-  { value: "+100", label: "Tiendas aliadas", icon: Store },
-  { value: "+500", label: "Productos disponibles", icon: ShoppingBag },
-  { value: "En minutos", label: "Entregas rápidas", icon: Zap },
-  { value: "100%", label: "Comprometidos contigo", icon: CheckCircle2 },
+const capabilities = [
+  { icon: Zap, title: "Servicios locales", text: "Encuentra personas disponibles para ayudarte con necesidades cotidianas en tu ciudad." },
+  { icon: PackageCheck, title: "Entregas y envíos", text: "Solicita recogidas, domicilios y envíos urbanos con seguimiento del proceso." },
+  { icon: Store, title: "Establecimientos", text: "Compra para domicilio, recoge en el negocio o pide directamente desde una mesa con QR." },
+  { icon: CarFront, title: "Viajes compartidos", text: "Encuentra un puesto o comparte tu recorrido con Ruta KroniX." },
 ];
 
-function PhoneCarousel() {
-  const [index, setIndex] = useState(0);
+const steps = [
+  { number: "01", title: "Elige lo que necesitas", text: "Abre KroniX y selecciona el servicio, negocio o viaje adecuado para ti." },
+  { number: "02", title: "Cuéntanos los detalles", text: "Indica tu ubicación y la información necesaria. La app te guía en cada paso." },
+  { number: "03", title: "Sigue todo desde tu celular", text: "Recibe avisos, consulta el estado y mantén el control de tu solicitud." },
+];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % buyerScreens.length);
-    }, phoneCarouselIntervalMs);
+function BrandLogo({ priority = false }: { priority?: boolean }) {
+  return <Image src="/branding/kronix/header-logo.png" alt="KroniX" width={682} height={250} priority={priority} className="brand-logo" />;
+}
 
-    return () => clearInterval(timer);
-  }, []);
-
+function PhonePreview() {
   return (
-    <div className="relative z-20 mx-auto flex w-full max-w-[360px] justify-center xl:max-w-[385px] 2xl:max-w-[410px]">
-      <div className="absolute -left-12 top-12 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
-      <div className="absolute -right-12 bottom-12 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full rounded-[2.8rem] border border-white/10 bg-[#050b18]/95 p-3 shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
-      >
-        <div className="mb-3 flex items-center justify-between px-4 pt-1 text-[11px] text-white/70">
-          <span>9:41</span>
-          <div className="h-6 w-28 rounded-full bg-slate-900/90" />
-          <span>5G</span>
-        </div>
-
-        <div className="relative aspect-[9/19] overflow-hidden rounded-[2.2rem] bg-slate-950">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={buyerScreens[index]}
-              className="absolute inset-0"
-              initial={{ opacity: 0, scale: 1.015 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.99 }}
-              transition={{ duration: 0.55, ease: "easeInOut" }}
-            >
-              <Image
-                src={buyerScreens[index]}
-                alt={`Pantalla Buyer ${index + 1}`}
-                fill
-                className="bg-slate-950 object-contain"
-                priority
-              />
-            </motion.div>
-          </AnimatePresence>
+    <div className="hero-visual" aria-label="Vista ilustrativa de la plataforma KroniX">
+      <motion.div className="phone-shell" initial={{ opacity: 0, y: 26, rotate: 1.5 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ duration: .75 }}>
+        <div className="phone-top"><span>9:41</span><i /><span>5G</span></div>
+        <div className="phone-screen">
+          <div className="phone-brand-row">
+            <Image src="/branding/kronix/header-logo.png" alt="" width={682} height={250} className="phone-logo" />
+            <div className="phone-avatar">K</div>
+          </div>
+          <div className="phone-location"><MapPin size={13} /> San Gil · Santander</div>
+          <h3>¿Qué necesitas hoy?</h3><p>Soluciones locales, más cerca de ti.</p>
+          <div className="phone-service-grid">
+            <div className="phone-service phone-service--blue"><Zap /><b>Servicios</b><span>Ayuda local</span></div>
+            <div className="phone-service phone-service--green"><PackageCheck /><b>Entregas</b><span>Recoge y lleva</span></div>
+            <div className="phone-service phone-service--yellow"><ShoppingBag /><b>Negocios</b><span>Pide a tu manera</span></div>
+            <div className="phone-service phone-service--cyan"><CarFront /><b>Viajes</b><span>Comparte tu ruta</span></div>
+          </div>
+          <div className="phone-active-card"><span className="pulse-dot" /><div><small>KRONIX EN TU CIUDAD</small><b>Conectando oportunidades</b></div><ChevronRight size={18} /></div>
         </div>
       </motion.div>
-
-      <div className="absolute -bottom-7 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-slate-950/80 px-4 py-2 backdrop-blur">
-        {buyerScreens.map((_, dotIndex) => (
-          <button
-            key={dotIndex}
-            type="button"
-            onClick={() => setIndex(dotIndex)}
-            className={`h-2.5 rounded-full transition-all ${
-              dotIndex === index ? "w-8 bg-emerald-400" : "w-2.5 bg-white/30"
-            }`}
-            aria-label={`Ver pantalla ${dotIndex + 1}`}
-          />
-        ))}
-      </div>
+      <motion.div className="floating-card floating-card--top" initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: .45 }}>
+        <div className="floating-icon"><MapPin size={20} /></div><div><small>YA ESTAMOS EN</small><strong>San Gil y Granada</strong></div>
+      </motion.div>
+      <motion.div className="floating-card floating-card--bottom" initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: .6 }}>
+        <div className="floating-icon floating-icon--lime"><Handshake size={20} /></div><div><small>HECHO PARA CRECER</small><strong>Junto a lo local</strong></div>
+      </motion.div>
     </div>
   );
 }
 
-function FeatureRowCard({
-  title,
-  description,
-  image,
-  icon: Icon,
-}: {
-  title: string;
-  description: string;
-  image: string;
-  icon: React.ComponentType<{ className?: string }>;
-}) {
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <div className="grid overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] shadow-[0_10px_35px_rgba(0,0,0,0.22)] backdrop-blur md:grid-cols-[0.95fr_1.05fr]">
-      <div className="flex items-center gap-5 p-6 xl:p-7">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-500/10 text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.12)]">
-          <Icon className="h-7 w-7" />
+    <main>
+      <header className="site-header">
+        <div className="container header-inner">
+          <a href="#inicio" aria-label="Ir al inicio"><BrandLogo priority /></a>
+          <nav className="desktop-nav" aria-label="Navegación principal">{navItems.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}</nav>
+          <a className="header-cta" href="#ecosistema">Explorar KroniX <ArrowRight size={17} /></a>
+          <button className="menu-button" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú" aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
+        {menuOpen && <nav className="mobile-nav" aria-label="Navegación móvil">{navItems.map((item) => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>)}<a href="#ecosistema" onClick={() => setMenuOpen(false)}>Explorar KroniX</a></nav>}
+      </header>
 
-        <div>
-          <h3 className="text-2xl font-extrabold text-white">{title}</h3>
-          <p className="mt-2 max-w-md text-base leading-7 text-slate-300">
-            {description}
-          </p>
-        </div>
-      </div>
-
-      <div className="relative min-h-[180px] bg-slate-950">
-        <Image src={image} alt={title} fill className="object-cover" />
-      </div>
-    </div>
-  );
-}
-
-
-function MobileAppSelector() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-
-    const sync = () => {
-      setOpen(media.matches);
-    };
-
-    sync();
-    media.addEventListener("change", sync);
-
-    return () => {
-      media.removeEventListener("change", sync);
-    };
-  }, []);
-
-  return (
-    <AnimatePresence>
-      {open ? (
-        <motion.div
-          className="fixed inset-0 z-[9999] flex items-end bg-slate-950/75 px-3 pb-3 backdrop-blur-sm md:hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="mobile-app-selector-title"
-        >
-          <motion.div
-            className="relative mx-auto w-full max-w-md overflow-hidden rounded-[30px] border border-white/10 bg-[#071523] shadow-[0_30px_90px_rgba(0,0,0,0.55)]"
-            initial={{ y: 80, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 80, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 320, damping: 30 }}
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.20),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.14),transparent_38%)]" />
-
-            <div className="relative p-5">
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80"
-                aria-label="Continuar viendo el sitio web"
-              >
-                <X className="h-5 w-5" />
-              </button>
-
-              <div className="pr-12">
-                <div className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-300">
-                  Bienvenido a KRONIX
-                </div>
-
-                <h2
-                  id="mobile-app-selector-title"
-                  className="mt-4 text-3xl font-black leading-tight text-white"
-                >
-                  ¿Qué deseas hacer?
-                </h2>
-
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Elige la experiencia que necesitas en este momento.
-                </p>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                <a
-                  href="https://buyer.kronix.co/instalar"
-                  className="grid min-h-[84px] grid-cols-[56px_minmax(0,1fr)_20px] items-center gap-3 rounded-[22px] border border-emerald-300/20 bg-emerald-500 px-4 py-3 text-slate-950 shadow-lg shadow-emerald-500/15 transition active:scale-[0.99]"
-                >
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-950/90 ring-1 ring-white/20">
-                    <Image
-                      src="/apps/buyer.png"
-                      alt="Aplicación KRONIX para clientes"
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="text-base font-black leading-5">Usar KRONIX</div>
-                    <div className="mt-1 text-[11px] font-semibold leading-4 text-slate-900/75">
-                      Comprar, pedir servicios, enviar paquetes y más
-                    </div>
-                  </div>
-
-                  <ArrowRight className="h-5 w-5 shrink-0" />
-                </a>
-
-                <a
-                  href="https://driver.kronix.co/instalar"
-                  className="grid min-h-[84px] grid-cols-[56px_minmax(0,1fr)_20px] items-center gap-3 rounded-[22px] border border-cyan-300/20 bg-blue-600 px-4 py-3 text-white shadow-lg shadow-blue-600/15 transition active:scale-[0.99]"
-                >
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-950/90 ring-1 ring-white/20">
-                    <Image
-                      src="/apps/worker.png"
-                      alt="Aplicación KRONIX para trabajadores"
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="text-base font-black leading-5">Trabajar con KRONIX</div>
-                    <div className="mt-1 text-[11px] font-semibold leading-4 text-white/80">
-                      Recibir servicios y generar ingresos
-                    </div>
-                  </div>
-
-                  <ArrowRight className="h-5 w-5 shrink-0" />
-                </a>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white/85"
-              >
-                Continuar viendo kronix.co
-              </button>
-            </div>
+      <section className="hero" id="inicio">
+        <div className="hero-glow hero-glow--one" /><div className="hero-glow hero-glow--two" />
+        <div className="container hero-grid">
+          <motion.div className="hero-copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .65 }}>
+            <div className="eyebrow"><span /> Tecnología local que sí se mueve contigo</div>
+            <h1>Tu ciudad.<br />Tus oportunidades.<br /><em>Una sola red.</em></h1>
+            <p className="hero-lead">KroniX conecta personas, trabajadores y negocios para resolver lo cotidiano, impulsar lo local y compartir nuevos caminos.</p>
+            <div className="hero-actions"><a className="button button--primary" href="https://buyer.kronix.co">Usar KroniX <ArrowRight size={19} /></a><a className="button button--ghost" href="#ecosistema">Conocer el ecosistema</a></div>
+            <div className="hero-proof"><div><MapPin size={18} /><span><strong>2 ciudades</strong>San Gil y Granada</span></div><div><UsersRound size={18} /><span><strong>Hecho con la comunidad</strong>Tecnología cercana</span></div></div>
           </motion.div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
-  );
-}
-
-export default function KronixLandingPage() {
-  return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <MobileAppSelector />
-      <section className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.20),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.14),transparent_24%),linear-gradient(180deg,#04101d_0%,#051223_50%,#040c17_100%)]" />
-        <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:42px_42px]" />
-
-        <div className="relative mx-auto flex min-h-screen w-full max-w-[1720px] flex-col px-6 py-6 sm:px-8 lg:px-10 xl:px-14">
-          <header className="flex items-center justify-between border-b border-white/10 pb-5">
-            <div className="flex items-center gap-3">
-              <div className="relative flex h-14 w-[220px] items-center overflow-visible">
-                <div
-                  className={`relative h-14 w-[200px] ${headerLogoControls.scale} ${headerLogoControls.translateX} ${headerLogoControls.translateY} origin-left`}
-                >
-                  <Image
-                    src="/branding/kronix/header-logo.png"
-                    alt="KroniX"
-                    fill
-                    className="object-contain object-left"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-
-            <nav className="hidden items-center gap-10 text-base font-medium text-white/90 xl:flex">
-              <a href="#" className="text-emerald-400">
-                Inicio
-              </a>
-              <a href="#services" className="hover:text-emerald-400">
-                Servicios
-              </a>
-              <a href="#how" className="hover:text-emerald-400">
-                Cómo funciona
-              </a>
-              <a href="#benefits" className="hover:text-emerald-400">
-                Beneficios
-              </a>
-              <a href="#launch" className="hover:text-emerald-400">
-                Próximamente
-              </a>
-              <a href="#contact" className="hover:text-emerald-400">
-                Contacto
-              </a>
-            </nav>
-
-            <a
-              href="https://wa.me/573112461059"
-              className="hidden items-center gap-2 rounded-2xl bg-emerald-500 px-6 py-4 text-base font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-[1.02] xl:inline-flex"
-            >
-              <MessageCircle className="h-5 w-5" />
-              Quiero más información
-            </a>
-
-            <button
-              type="button"
-              className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white xl:hidden"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          </header>
-
-          <div className="flex flex-1 items-center">
-            <div className="grid w-full items-center gap-8 py-8 xl:grid-cols-[0.95fr_0.82fr_1.05fr] 2xl:gap-10">
-              <div className="flex flex-col justify-center">
-                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 backdrop-blur">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                  Próximamente en San Gil - Santander
-                </div>
-
-                <h1 className="mt-7 max-w-3xl text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl 2xl:text-[84px]">
-                  Todo lo que
-                  <span className="block">necesitas,</span>
-                  <span className="block bg-gradient-to-r from-emerald-400 via-lime-300 to-cyan-300 bg-clip-text text-transparent">
-                    cuando lo necesitas.
-                  </span>
-                </h1>
-
-                <p className="mt-5 max-w-xl text-lg leading-8 text-slate-200 2xl:text-xl">
-                  KroniX reúne compras, envíos, recogidas y diligencias en una sola
-                  experiencia moderna, rápida y confiable.
-                </p>
-
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <a
-                    href="https://wa.me/573112461059"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-6 py-4 text-base font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-[1.02]"
-                  >
-                    Quiero más información
-                    <ArrowRight className="h-5 w-5" />
-                  </a>
-
-                  <a
-                    href="#services"
-                    className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-6 py-4 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10"
-                  >
-                    Ver servicios
-                  </a>
-                </div>
-
-                <div className="mt-10 flex flex-wrap gap-8">
-                  {miniHighlights.map((item) => {
-                    const Icon = item.icon;
-
-                    return (
-                      <div key={item.title} className="flex items-start gap-3">
-                        <div className="mt-1 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-500/10 text-emerald-400">
-                          <Icon className="h-5 w-5" />
-                        </div>
-
-                        <div>
-                          <div className="text-2xl font-extrabold leading-none">
-                            {item.title}
-                          </div>
-                          <div className="mt-2 text-sm text-slate-300">
-                            {item.description}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="relative flex items-center justify-center overflow-visible">
-                <div
-                  className={`absolute bottom-[17%] left-[-16%] z-30 hidden xl:block ${motoLeftControls.scale} ${motoLeftControls.translateX} ${motoLeftControls.translateY}`}
-                >
-                  <div className="relative h-[170px] w-[220px]">
-                    <Image
-                      src="/branding/kronix/card-moto.png"
-                      alt="Moto KroniX"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
-
-                <div
-                  className={`absolute bottom-[12%] right-[-18%] z-30 hidden xl:block ${motoRightControls.scale} ${motoRightControls.translateX} ${motoRightControls.translateY}`}
-                >
-                  <div className="relative h-[235px] w-[245px]">
-                    <Image
-                      src="/branding/kronix/enviar-Paquete2.png"
-                      alt="Enviar paquete"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
-
-                <PhoneCarousel />
-              </div>
-
-              <div className="flex flex-col justify-center">
-                <div>
-                  <h2 className="text-4xl font-black tracking-tight 2xl:text-5xl">
-                    ¿Por qué elegir KroniX?
-                  </h2>
-                  <p className="mt-3 text-lg text-slate-300">
-                    Tecnología que trabaja para ti y tu comunidad.
-                  </p>
-                </div>
-
-                <div className="mt-8 space-y-4">
-                  {featureCards.map((item) => (
-                    <FeatureRowCard
-                      key={item.title}
-                      title={item.title}
-                      description={item.description}
-                      image={item.image}
-                      icon={item.icon}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <section
-            id="benefits"
-            className="grid gap-4 border-t border-white/10 pt-5 xl:grid-cols-[1.1fr_0.95fr_0.75fr]"
-          >
-            <div className="grid grid-cols-2 gap-4 rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.22)] backdrop-blur xl:grid-cols-4">
-              {stats.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <div key={item.label}>
-                    <div className="flex items-center gap-3 text-emerald-400">
-                      <Icon className="h-5 w-5" />
-                      <span className="text-3xl font-black text-white">
-                        {item.value}
-                      </span>
-                    </div>
-                    <div className="mt-3 text-base text-slate-300">
-                      {item.label}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div
-              id="services"
-              className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.22)] backdrop-blur"
-            >
-              <h3 className="text-2xl font-black">
-                KroniX llega para hacer tu vida más fácil.
-              </h3>
-              <p className="mt-2 text-lg text-slate-300">Todo en una sola app.</p>
-
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                {services.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <div
-                      key={item.title}
-                      className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-5 text-center"
-                    >
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="text-lg font-semibold">{item.title}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div
-              id="contact"
-              className="rounded-[28px] border border-emerald-400/20 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_45%),rgba(255,255,255,0.03)] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
-            >
-              <div className="grid h-full gap-5 xl:grid-cols-[110px_1fr] xl:items-center">
-                <div className="relative mx-auto h-[120px] w-[95px] xl:h-[150px] xl:w-[120px]">
-                  <Image
-                    src="/branding/kronix/check-list.png"
-                    alt="Checklist KroniX"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-3 text-emerald-400">
-                    <Store className="h-6 w-6" />
-                    <div className="text-2xl font-black text-white">
-                      ¿Eres tienda o emprendedor?
-                    </div>
-                  </div>
-
-                  <p className="mt-4 text-lg leading-8 text-slate-300">
-                    Únete a KroniX y aumenta tus ventas.
-                  </p>
-
-                  <a
-                    href="https://wa.me/573112461059"
-                    className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-6 py-4 text-base font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-[1.02]"
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                    Quiero vender en KroniX
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
+          <PhonePreview />
         </div>
       </section>
+
+      <section className="city-ribbon" aria-label="Ciudades activas"><div className="container city-ribbon-inner"><span>KroniX ya está en movimiento</span><div><MapPin size={17} /> San Gil <small>Santander</small></div><i /><div><MapPin size={17} /> Granada <small>Meta</small></div><strong>Y seguimos creciendo</strong></div></section>
+
+      <section className="section section--light" id="ecosistema"><div className="container">
+        <div className="section-heading section-heading--center"><span className="kicker">UN ECOSISTEMA, DISTINTAS FORMAS DE AVANZAR</span><h2>KroniX se adapta a tu camino</h2><p>Elige la experiencia que necesitas. Todas nacen de la misma idea: acercar oportunidades reales a cada ciudad.</p></div>
+        <div className="experience-grid">{experiences.map((experience, index) => { const Icon = experience.icon; return (
+          <motion.article key={experience.title} className={`experience-card experience-card--${experience.tone}`} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .25 }} transition={{ delay: index * .09 }} id={experience.title === "Ruta KroniX" ? "ruta-kronix" : undefined}>
+            <div className="experience-top"><div className="experience-icon">{experience.image ? <Image src={experience.image} alt="" width={500} height={500} /> : <Icon />}</div><span>{experience.eyebrow}</span></div>
+            <h3>{experience.title}</h3><p>{experience.description}</p><ul>{experience.points.map((point) => <li key={point}><Check size={15} /> {point}</li>)}</ul><a href={experience.href}>{experience.cta} <ArrowRight size={17} /></a>
+          </motion.article>); })}</div>
+      </div></section>
+
+      <section className="section section--dark" id="servicios"><div className="container">
+        <div className="section-heading section-heading--dark"><span className="kicker">MÁS QUE UNA APP</span><h2>Una plataforma para la vida real</h2><p>Construimos herramientas sencillas para conectar lo que necesitas con personas y negocios de tu entorno.</p></div>
+        <div className="capability-grid">{capabilities.map((capability, index) => { const Icon = capability.icon; return <motion.article key={capability.title} className="capability-card" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .07 }}><span>0{index + 1}</span><div className="capability-icon"><Icon /></div><h3>{capability.title}</h3><p>{capability.text}</p></motion.article>; })}</div>
+      </div></section>
+
+      <section className="section section--how"><div className="container how-grid">
+        <div className="how-copy"><span className="kicker">SIMPLE DESDE EL PRIMER TOQUE</span><h2>Lo local no tiene que ser complicado</h2><p>KroniX te acompaña con pasos claros, información útil y una experiencia pensada para el celular.</p><div className="trust-note"><ShieldCheck /><span><strong>Tu información importa.</strong> Usamos los datos necesarios para prestar el servicio y ofrecemos canales claros de soporte y privacidad.</span></div></div>
+        <div className="steps-list">{steps.map((step) => <article key={step.number}><span>{step.number}</span><div><h3>{step.title}</h3><p>{step.text}</p></div></article>)}</div>
+      </div></section>
+
+      <section className="section section--cities" id="ciudades"><div className="container"><div className="cities-panel">
+        <div className="cities-copy"><span className="kicker">NACIMOS CERCA</span><h2>Dos ciudades, una misma energía</h2><p>KroniX opera desde lo local: conoce cada territorio, acompaña a su comunidad y crece junto a ella.</p><div className="cities-list"><div><b><MapPin /> San Gil</b><span>Santander</span></div><div><b><MapPin /> Granada</b><span>Meta</span></div></div></div>
+        <div className="map-art" aria-hidden="true"><span className="map-ring map-ring--one" /><span className="map-ring map-ring--two" /><div className="map-route" /><div className="map-pin map-pin--sg"><i /><b>San Gil</b></div><div className="map-pin map-pin--gr"><i /><b>Granada</b></div><strong>K</strong></div>
+      </div></div></section>
+
+      <section className="section section--partners" id="aliados"><div className="container">
+        <div className="section-heading section-heading--center"><span className="kicker">CRECEMOS CONTIGO</span><h2>También hay un lugar para ti en KroniX</h2></div>
+        <div className="partner-grid">
+          <article><div className="partner-icon"><Building2 /></div><div><span>NEGOCIOS Y ESTABLECIMIENTOS</span><h3>Digitaliza tu atención sin perder tu esencia</h3><p>Recibe pedidos para domicilio, recoger o atender en mesa mediante QR, con una experiencia diseñada para tu negocio.</p><a href="#contacto">Quiero vincular mi negocio <ArrowRight /></a></div></article>
+          <article><div className="partner-icon partner-icon--green"><BriefcaseBusiness /></div><div><span>TRABAJADORES INDEPENDIENTES</span><h3>Convierte tu experiencia en oportunidades</h3><p>Registra tu perfil, completa las verificaciones y accede a solicitudes disponibles en tu ciudad.</p><a href="#contacto">Quiero ser parte de KroniX Pro <ArrowRight /></a></div></article>
+        </div>
+      </div></section>
+
+      <section className="closing" id="contacto"><div className="closing-orb closing-orb--one" /><div className="closing-orb closing-orb--two" /><div className="container closing-inner"><div><span className="kicker">EL FUTURO TAMBIÉN SE CONSTRUYE DESDE AQUÍ</span><h2>Haz parte del movimiento KroniX</h2><p>Clientes, trabajadores, conductores y negocios: hay una forma de avanzar juntos.</p></div><div className="closing-actions"><a className="button button--light" href="https://buyer.kronix.co">Empezar con KroniX <ArrowRight /></a><a className="support-link" href="mailto:soporte@kronix.co"><Headphones /> soporte@kronix.co</a></div></div></section>
+
+      <footer><div className="container footer-top"><div className="footer-brand"><BrandLogo /><p>Tecnología local para conectar personas, oportunidades y ciudades.</p></div><div><h3>Explora</h3><a href="#ecosistema">Ecosistema</a><a href="#servicios">Qué hacemos</a><a href="#ciudades">Ciudades</a></div><div><h3>Comunidad</h3><a href="#aliados">Para negocios</a><a href="#aliados">KroniX Pro</a><a href="#ruta-kronix">Ruta KroniX</a></div><div><h3>Ayuda y legal</h3><a href="mailto:soporte@kronix.co">Soporte</a><a href="/eliminar-cuenta-ruta-kronix">Eliminar cuenta Ruta KroniX</a><a href="mailto:soporte@kronix.co?subject=Privacidad%20KroniX">Privacidad y datos</a></div></div><div className="container footer-bottom"><span>© 2026 KroniX Tecnología S.A.S.</span><span>Hecho en Colombia para nuestras ciudades.</span></div></footer>
     </main>
   );
 }
