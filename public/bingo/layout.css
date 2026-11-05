@@ -1,0 +1,43 @@
+/* Compact controls leave the available width to the numbers on the master board. */
+@media screen {
+  aside{width:174px;padding:18px 10px}
+  main{margin-left:174px;padding:16px 18px 0;max-width:none}
+  .nav-label{margin:28px 6px 9px;font-size:8px;letter-spacing:1px}
+  nav{gap:5px}nav button{gap:7px;padding:9px 6px;font-size:12px;line-height:1.4}
+  nav button span{min-width:0}
+  .brand{padding:0 4px}.brand img{max-width:100%;height:auto}.brand small{font-size:7px;letter-spacing:2px;margin-top:5px}
+  .aside-bottom p{padding-top:12px;margin-top:14px}.online{margin:10px 0 5px}
+  header{margin-bottom:14px;gap:10px}h1{margin-top:5px}.header-actions{gap:9px}
+  .panel{padding:11px}.panel-heading{gap:7px}
+  .round-controls{padding:8px 10px;margin-bottom:11px;gap:9px}.round-controls>div:first-child{gap:3px}
+  .stats{margin-bottom:11px}.stats>div{padding:10px 12px}.stats strong{margin:4px 0;font-size:33px}.stats .pattern-stat{min-height:24px;line-height:1.4}
+  .live-layout{grid-template-columns:minmax(265px,.675fr) minmax(0,1.475fr);gap:11px;align-items:start}
+  .live-layout>div{min-width:0}
+  .ball-stage{height:182px}.ball{width:156px;height:156px}.orbit.one{width:175px;height:175px}.orbit.two{width:215px;height:215px}
+  .stage-caption{bottom:0}.history-label{margin:10px 0 6px}.history{gap:9px}
+  .draw-controls{gap:7px;margin-top:11px}.draw-controls button{padding:10px;font-size:12px}.draw-controls kbd{display:none}
+  .draw-options{margin:8px 0;gap:6px}.physical{padding-top:8px;gap:5px}
+  .audit{margin-top:10px;gap:9px}.audit p{margin:5px 0}.alerts{margin-top:10px;min-height:140px}
+  #board{gap:6px;margin-top:13px}.board-row{grid-template-columns:34px repeat(15,minmax(0,1fr));gap:5px}
+  .board-cell{font-size:clamp(12px,1.15vw,23px);font-weight:650}.board-letter{font-size:23px}
+  .board-legend{margin-top:11px}.board-heading-actions{display:flex;align-items:center;gap:10px}.board-heading-actions button{font-size:12px;padding:7px 11px;white-space:nowrap}
+  #radar{padding-top:10px}.radar-empty{padding:9px}
+  footer{padding:12px 0;margin-top:14px}
+  :root[data-theme="party"]:not([data-theme="default"]) .brand{padding:5px;border-width:2px;border-radius:10px}
+  .presenting main{padding:12px}.presenting .live-layout{grid-template-columns:minmax(265px,.6fr) minmax(0,1.4fr)}
+  .presenting .ball-stage{height:270px}.presenting .round-controls{padding:6px 9px}
+  @media(max-width:1200px){aside{width:146px;padding:15px 6px}main{margin-left:146px;padding:13px 11px 0}.brand small{letter-spacing:1px}.round-controls{flex-direction:row;align-items:center;flex-wrap:wrap}.round-buttons{width:auto;flex:1}.round-buttons button{padding:9px 7px;font-size:11px}.round-controls .muted{max-width:220px}}
+  @media(max-width:1000px){.live-layout,.presenting .live-layout{grid-template-columns:1fr}.board-cell{font-size:clamp(12px,1.8vw,20px)}.draw-controls kbd{display:inline}.round-controls{align-items:flex-start;flex-direction:column}.round-buttons{width:100%}}
+  @media(max-width:760px){aside{width:auto;padding:9px;position:static}main{margin:0;padding:10px 7px}.brand img{width:120px}nav{margin-top:8px;gap:3px}nav button{padding:7px 6px;font-size:11px}header{margin-bottom:10px}h1{font-size:22px}.panel{padding:9px}.board-panel{margin-top:10px}.board-heading-actions .muted{display:none}.board-row{grid-template-columns:22px repeat(15,minmax(0,1fr));gap:3px}.board-cell{font-size:clamp(9px,2vw,14px)}.board-letter{font-size:16px}.stats>div{padding:8px 10px}.stats strong{font-size:29px}.stats .pattern-stat{font-size:14px}.presenting main{padding:8px}.presenting .board-cell{font-size:clamp(9px,2vw,14px)}:root[data-theme="party"]:not([data-theme="default"]) .brand{width:150px}}
+  body.board-only{overflow:hidden}
+  #masterPanel:is(:fullscreen,.is-expanded){position:fixed;inset:0;z-index:10000;width:100%;height:100%;height:100dvh;margin:0;padding:clamp(8px,1.3vw,24px);border:0;border-radius:0;box-shadow:none;background:var(--panel);display:flex;flex-direction:column;gap:clamp(6px,1vh,12px);overflow:auto}
+  #masterPanel:is(:fullscreen,.is-expanded)>.panel-heading{flex:none;margin:0}
+  #masterPanel:is(:fullscreen,.is-expanded) h2{font-size:clamp(17px,2vw,32px)}
+  #masterPanel:is(:fullscreen,.is-expanded) #board{margin:0;flex:1;min-height:0;display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:clamp(4px,1vh,12px)}
+  #masterPanel:is(:fullscreen,.is-expanded) .board-row{grid-template-columns:minmax(30px,.7fr) repeat(15,minmax(0,1fr));gap:clamp(2px,.5vw,10px);min-height:0}
+  #masterPanel:is(:fullscreen,.is-expanded) :is(.board-cell,.board-letter){aspect-ratio:auto;height:100%;min-height:0;display:grid;place-items:center;font-size:clamp(12px,min(3vw,8vh),66px);font-weight:800}
+  #masterPanel:is(:fullscreen,.is-expanded) .board-legend{flex:none;margin:0;font-size:clamp(10px,1vw,16px)}
+  #masterPanel:is(:fullscreen,.is-expanded) .board-heading-actions .muted{display:none}
+  #masterPanel:is(:fullscreen,.is-expanded) #expandBoard{min-height:40px;padding:8px 14px}
+  #masterPanel::backdrop{background:var(--bg)}
+}
