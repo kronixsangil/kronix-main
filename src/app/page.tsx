@@ -14,6 +14,7 @@ const navItems = [
   { label: "Qué hacemos", href: "#servicios" },
   { label: "Ciudades", href: "#ciudades" },
   { label: "Para negocios", href: "#aliados" },
+  { label: "Bingo", href: "/bingo" },
 ];
 
 const experiences = [
