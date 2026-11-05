@@ -1,5 +1,5 @@
 @media screen {
-  :root[data-theme="party"] {
+  :root[data-theme="party"]:not([data-theme="default"]) {
     color-scheme: light;
     --bg:#fff4ce;--panel:#fffefa;--line:#b5cae9;--text:#102c65;--muted:#4f6488;
     --lime:#0755bf;--amber:#a55300;--side:#07398d;--control:#e9f2ff;--input:#ffffff;
@@ -7,59 +7,59 @@
     --ball-top:#ff9c84;--ball-mid:#ef292e;--ball-end:#b0071c;--ball-ink:#ffffff;
     --danger:#b81f35;--danger-bg:#ffe5e7;--warn-bg:#fff0ac;--warn-ink:#69440a;
   }
-  :root[data-theme="party"] body {
+  :root[data-theme="party"]:not([data-theme="default"]) body {
     background-color:var(--bg);
     background-image:radial-gradient(circle at 12% 18%,#ffcd3370 0 4px,transparent 5px),radial-gradient(circle at 76% 72%,#ed35613a 0 5px,transparent 6px),radial-gradient(circle at 40% 60%,#1896e53b 0 3px,transparent 4px),radial-gradient(circle at 85% 12%,#3fbc5a35 0 4px,transparent 5px);
     background-size:190px 180px,230px 240px,140px 170px,280px 220px;
   }
-  :root[data-theme="party"] aside{background:linear-gradient(155deg,#0850ac,#072673);border-right:4px solid #ffd23d}
-  :root[data-theme="party"] .brand{background:#fffdf2;border-radius:14px;padding:10px;border:3px solid #ffcf3c;box-shadow:0 5px 0 #001d6055}
-  :root[data-theme="party"] .brand small{color:#164985}
-  :root[data-theme="party"] :is(.nav-label,.aside-bottom,.aside-bottom small){color:#d7e7ff}
-  :root[data-theme="party"] nav button{color:#eef6ff}
-  :root[data-theme="party"] nav button:hover{background:#ffffff15;border-color:#ffffff55}
-  :root[data-theme="party"] nav .selected{background:#ffda46;border-color:#ffe88b;color:#153772;box-shadow:0 3px 0 #001e6b44;font-weight:750}
-  :root[data-theme="party"] .online{color:#c6ff9a}
-  :root[data-theme="party"] header h1{color:#103e90;text-shadow:1px 2px 0 #ffffff}
-  :root[data-theme="party"] header h1::after{content:'BINGO PARTY';display:inline-block;vertical-align:middle;margin-left:14px;padding:7px 10px;border-radius:8px;background:linear-gradient(110deg,#ef3637,#d6198c);color:white;font-size:10px;letter-spacing:1px;text-shadow:0 1px 1px #920438;box-shadow:0 3px 0 #a5155240;transform:rotate(-3deg)}
-  :root[data-theme="party"] .panel{border:2px solid #9fbde9;box-shadow:0 5px 0 #174d9420}
-  :root[data-theme="party"] .stats{border:2px solid #8eafe0;overflow:hidden;box-shadow:0 5px 0 #174d9418}
-  :root[data-theme="party"] .stats>div{border-top:5px solid #ed333c}
-  :root[data-theme="party"] .stats>div:nth-child(2){border-top-color:#f3bf15}
-  :root[data-theme="party"] .stats>div:nth-child(3){border-top-color:#3bbf4b}
-  :root[data-theme="party"] .stats>div:nth-child(4){border-top-color:#d621a7}
-  :root[data-theme="party"] .board-panel{border:4px solid #1450a8;background:linear-gradient(#edf5ff,#ffffff);box-shadow:0 5px 0 #082e732b,inset 0 0 0 2px #ffffff}
-  :root[data-theme="party"] .board-row{--column-color:#df2535;--letter-ink:#ffffff}
-  :root[data-theme="party"] .board-row:nth-child(2){--column-color:#f4ca21;--letter-ink:#563e00}
-  :root[data-theme="party"] .board-row:nth-child(3){--column-color:#269a3b}
-  :root[data-theme="party"] .board-row:nth-child(4){--column-color:#087ac6}
-  :root[data-theme="party"] .board-row:nth-child(5){--column-color:#bc199e}
-  :root[data-theme="party"] .board-letter{display:grid;place-items:center;min-height:30px;border-radius:5px;background:linear-gradient(#ffffff22,#00000009),var(--column-color);color:var(--letter-ink);border:1px solid #ffffff;box-shadow:0 2px 0 #153b7b55;text-shadow:0 1px 1px #00000022}
-  :root[data-theme="party"] .board-cell{background:linear-gradient(#ffffff,#e5eef8);color:#142a48;border:1px solid #789ed5;border-radius:4px;font-weight:750;box-shadow:0 2px 0 #173e7a22}
-  :root[data-theme="party"] :is(.board-cell.called,.board-cell.current){background:radial-gradient(circle at 33% 22%,#ffafa0,#ee2636 45%,#b50a25);color:#ffffff;border:1px solid #b50d20;border-radius:50%;box-shadow:inset 0 2px 1px #ffffff88,0 2px 2px #8f203a40}
-  :root[data-theme="party"] .board-cell.current{outline:3px solid #ffcf28;outline-offset:1px}
-  :root[data-theme="party"] .ball{border:5px solid #ffffff;outline:4px solid #f5ca30;box-shadow:0 10px 0 #092c7620,0 14px 35px #ed2c3330,inset 0 -9px 15px #90052030;text-shadow:0 2px 2px #9a0c23}
-  :root[data-theme="party"] .orbit{border:2px dashed #1d72bc25}
-  :root[data-theme="party"] .orbit.two{border-color:#f2ba3855}
-  :root[data-theme="party"] .mini-ball{background:radial-gradient(circle at 30% 20%,#ff978e,#ef2835 50%,#b3132a);color:#ffffff;border:2px solid #ffffff;box-shadow:0 0 0 1px #d03041,0 3px 0 #14377315;font-weight:750}
-  :root[data-theme="party"] .history .empty{background:#f0f5fc;color:#617ca6;border:1px dashed #99b7de;box-shadow:none}
-  :root[data-theme="party"] :is(.primary,.primary:hover){background:linear-gradient(#1379df,#064fb1);border:1px solid #05449c;color:#ffffff;box-shadow:inset 0 1px 0 #ffffff44,0 3px 0 #053b812b}
-  :root[data-theme="party"] :is(#draw,#draw:hover){background:linear-gradient(#fa4b44,#d91a30);border-color:#b4132b;color:white;box-shadow:inset 0 1px 0 #ffffff66,0 4px 0 #9c15282b}
-  :root[data-theme="party"] :is(#configureGame,#configureGame:hover){background:linear-gradient(#ffe875,#ffcf28);border-color:#dca915;color:#4f3800;box-shadow:0 3px 0 #bf8a1d33}
-  :root[data-theme="party"] .bingo-card{border:4px solid #1353af;background:#edf5ff;box-shadow:0 4px 0 #082e732b,inset 0 0 0 1px #ffffff}
-  :root[data-theme="party"] .bingo-grid{gap:3px;padding:4px;background:#16468e;border-radius:7px}
-  :root[data-theme="party"] .bingo-grid .letter{border-radius:4px;border:1px solid #ffffff88;background:linear-gradient(#ff6867,#cf1828);color:#ffffff;font-size:19px;text-shadow:0 2px 0 #00000022;box-shadow:inset 0 1px 2px #ffffff88}
-  :root[data-theme="party"] .bingo-grid .letter:nth-child(2){background:linear-gradient(#fff17c,#e8b600);color:#594000;text-shadow:none}
-  :root[data-theme="party"] .bingo-grid .letter:nth-child(3){background:linear-gradient(#7cdf5d,#258d36)}
-  :root[data-theme="party"] .bingo-grid .letter:nth-child(4){background:linear-gradient(#61cbff,#0879d0)}
-  :root[data-theme="party"] .bingo-grid .letter:nth-child(5){background:linear-gradient(#ef6adb,#a41b9d)}
-  :root[data-theme="party"] .bingo-grid .cell{background:linear-gradient(#ffffff,#e4eef6);color:#10223c;font-weight:800;border:1px solid #91aee0;box-shadow:inset 0 1px 2px #ffffff,0 1px 1px #071c4e;position:relative;isolation:isolate}
-  :root[data-theme="party"] .bingo-grid .cell.marked{background:linear-gradient(#ffffff,#e4eef6);color:white;border-color:#91aee0;text-shadow:0 1px 1px #940f22}
-  :root[data-theme="party"] .bingo-grid .cell.marked::before{content:'';position:absolute;inset:5%;border-radius:50%;background:radial-gradient(circle at 30% 20%,#ff9e89,#f02a32 45%,#b60721);box-shadow:inset 0 1px 2px #ffffffaa,0 2px 2px #90052055;z-index:-1}
-  :root[data-theme="party"] .bingo-grid .cell.free{font-size:0}
-  :root[data-theme="party"] .bingo-grid .cell.free::after{content:'★';font-size:clamp(16px,2vw,30px);color:#ffde38;text-shadow:0 2px 0 #d58006}
-  :root[data-theme="party"] .bingo-grid .cell.target{outline:2px solid #ffcf3c;outline-offset:-2px}
-  :root[data-theme="party"] .mini-grid .on{background:linear-gradient(#ff7970,#e32b39);border-color:#bb1c2e;box-shadow:inset 0 1px 1px #ffffff88}
-  :root[data-theme="party"] .pattern-option.active{border-color:#e8323e;box-shadow:0 0 0 1px #e8323e}
-  @media(max-width:760px){:root[data-theme="party"] aside{border-right:0;border-bottom:4px solid #ffd23d}:root[data-theme="party"] .brand{width:180px}:root[data-theme="party"] header h1::after{font-size:8px;margin-left:9px}:root[data-theme="party"] .board-letter{min-height:24px;font-size:14px}:root[data-theme="party"] .board-cell.current{outline-width:2px}}
+  :root[data-theme="party"]:not([data-theme="default"]) aside{background:linear-gradient(155deg,#0850ac,#072673);border-right:4px solid #ffd23d}
+  :root[data-theme="party"]:not([data-theme="default"]) .brand{background:#fffdf2;border-radius:14px;padding:10px;border:3px solid #ffcf3c;box-shadow:0 5px 0 #001d6055}
+  :root[data-theme="party"]:not([data-theme="default"]) .brand small{color:#164985}
+  :root[data-theme="party"]:not([data-theme="default"]) :is(.nav-label,.aside-bottom,.aside-bottom small){color:#d7e7ff}
+  :root[data-theme="party"]:not([data-theme="default"]) nav button{color:#eef6ff}
+  :root[data-theme="party"]:not([data-theme="default"]) nav button:hover{background:#ffffff15;border-color:#ffffff55}
+  :root[data-theme="party"]:not([data-theme="default"]) nav .selected{background:#ffda46;border-color:#ffe88b;color:#153772;box-shadow:0 3px 0 #001e6b44;font-weight:750}
+  :root[data-theme="party"]:not([data-theme="default"]) .online{color:#c6ff9a}
+  :root[data-theme="party"]:not([data-theme="default"]) header h1{color:#103e90;text-shadow:1px 2px 0 #ffffff}
+  :root[data-theme="party"]:not([data-theme="default"]) header h1::after{content:'BINGO PARTY';display:inline-block;vertical-align:middle;margin-left:14px;padding:7px 10px;border-radius:8px;background:linear-gradient(110deg,#ef3637,#d6198c);color:white;font-size:10px;letter-spacing:1px;text-shadow:0 1px 1px #920438;box-shadow:0 3px 0 #a5155240;transform:rotate(-3deg)}
+  :root[data-theme="party"]:not([data-theme="default"]) .panel{border:2px solid #9fbde9;box-shadow:0 5px 0 #174d9420}
+  :root[data-theme="party"]:not([data-theme="default"]) .stats{border:2px solid #8eafe0;overflow:hidden;box-shadow:0 5px 0 #174d9418}
+  :root[data-theme="party"]:not([data-theme="default"]) .stats>div{border-top:5px solid #ed333c}
+  :root[data-theme="party"]:not([data-theme="default"]) .stats>div:nth-child(2){border-top-color:#f3bf15}
+  :root[data-theme="party"]:not([data-theme="default"]) .stats>div:nth-child(3){border-top-color:#3bbf4b}
+  :root[data-theme="party"]:not([data-theme="default"]) .stats>div:nth-child(4){border-top-color:#d621a7}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-panel{border:4px solid #1450a8;background:linear-gradient(#edf5ff,#ffffff);box-shadow:0 5px 0 #082e732b,inset 0 0 0 2px #ffffff}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-row{--column-color:#df2535;--letter-ink:#ffffff}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-row:nth-child(2){--column-color:#f4ca21;--letter-ink:#563e00}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-row:nth-child(3){--column-color:#269a3b}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-row:nth-child(4){--column-color:#087ac6}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-row:nth-child(5){--column-color:#bc199e}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-letter{display:grid;place-items:center;min-height:30px;border-radius:5px;background:linear-gradient(#ffffff22,#00000009),var(--column-color);color:var(--letter-ink);border:1px solid #ffffff;box-shadow:0 2px 0 #153b7b55;text-shadow:0 1px 1px #00000022}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-cell{background:linear-gradient(#ffffff,#e5eef8);color:#142a48;border:1px solid #789ed5;border-radius:4px;font-weight:750;box-shadow:0 2px 0 #173e7a22}
+  :root[data-theme="party"]:not([data-theme="default"]) :is(.board-cell.called,.board-cell.current){background:radial-gradient(circle at 33% 22%,#ffafa0,#ee2636 45%,#b50a25);color:#ffffff;border:1px solid #b50d20;border-radius:50%;box-shadow:inset 0 2px 1px #ffffff88,0 2px 2px #8f203a40}
+  :root[data-theme="party"]:not([data-theme="default"]) .board-cell.current{outline:3px solid #ffcf28;outline-offset:1px}
+  :root[data-theme="party"]:not([data-theme="default"]) .ball{border:5px solid #ffffff;outline:4px solid #f5ca30;box-shadow:0 10px 0 #092c7620,0 14px 35px #ed2c3330,inset 0 -9px 15px #90052030;text-shadow:0 2px 2px #9a0c23}
+  :root[data-theme="party"]:not([data-theme="default"]) .orbit{border:2px dashed #1d72bc25}
+  :root[data-theme="party"]:not([data-theme="default"]) .orbit.two{border-color:#f2ba3855}
+  :root[data-theme="party"]:not([data-theme="default"]) .mini-ball{background:radial-gradient(circle at 30% 20%,#ff978e,#ef2835 50%,#b3132a);color:#ffffff;border:2px solid #ffffff;box-shadow:0 0 0 1px #d03041,0 3px 0 #14377315;font-weight:750}
+  :root[data-theme="party"]:not([data-theme="default"]) .history .empty{background:#f0f5fc;color:#617ca6;border:1px dashed #99b7de;box-shadow:none}
+  :root[data-theme="party"]:not([data-theme="default"]) :is(.primary,.primary:hover){background:linear-gradient(#1379df,#064fb1);border:1px solid #05449c;color:#ffffff;box-shadow:inset 0 1px 0 #ffffff44,0 3px 0 #053b812b}
+  :root[data-theme="party"]:not([data-theme="default"]) :is(#draw,#draw:hover){background:linear-gradient(#fa4b44,#d91a30);border-color:#b4132b;color:white;box-shadow:inset 0 1px 0 #ffffff66,0 4px 0 #9c15282b}
+  :root[data-theme="party"]:not([data-theme="default"]) :is(#configureGame,#configureGame:hover){background:linear-gradient(#ffe875,#ffcf28);border-color:#dca915;color:#4f3800;box-shadow:0 3px 0 #bf8a1d33}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-card{border:4px solid #1353af;background:#edf5ff;box-shadow:0 4px 0 #082e732b,inset 0 0 0 1px #ffffff}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid{gap:3px;padding:4px;background:#16468e;border-radius:7px}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .letter{border-radius:4px;border:1px solid #ffffff88;background:linear-gradient(#ff6867,#cf1828);color:#ffffff;font-size:19px;text-shadow:0 2px 0 #00000022;box-shadow:inset 0 1px 2px #ffffff88}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .letter:nth-child(2){background:linear-gradient(#fff17c,#e8b600);color:#594000;text-shadow:none}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .letter:nth-child(3){background:linear-gradient(#7cdf5d,#258d36)}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .letter:nth-child(4){background:linear-gradient(#61cbff,#0879d0)}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .letter:nth-child(5){background:linear-gradient(#ef6adb,#a41b9d)}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .cell{background:linear-gradient(#ffffff,#e4eef6);color:#10223c;font-weight:800;border:1px solid #91aee0;box-shadow:inset 0 1px 2px #ffffff,0 1px 1px #071c4e;position:relative;isolation:isolate}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .cell.marked{background:linear-gradient(#ffffff,#e4eef6);color:white;border-color:#91aee0;text-shadow:0 1px 1px #940f22}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .cell.marked::before{content:'';position:absolute;inset:5%;border-radius:50%;background:radial-gradient(circle at 30% 20%,#ff9e89,#f02a32 45%,#b60721);box-shadow:inset 0 1px 2px #ffffffaa,0 2px 2px #90052055;z-index:-1}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .cell.free{font-size:0}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .cell.free::after{content:'★';font-size:clamp(16px,2vw,30px);color:#ffde38;text-shadow:0 2px 0 #d58006}
+  :root[data-theme="party"]:not([data-theme="default"]) .bingo-grid .cell.target{outline:2px solid #ffcf3c;outline-offset:-2px}
+  :root[data-theme="party"]:not([data-theme="default"]) .mini-grid .on{background:linear-gradient(#ff7970,#e32b39);border-color:#bb1c2e;box-shadow:inset 0 1px 1px #ffffff88}
+  :root[data-theme="party"]:not([data-theme="default"]) .pattern-option.active{border-color:#e8323e;box-shadow:0 0 0 1px #e8323e}
+  @media(max-width:760px){:root[data-theme="party"]:not([data-theme="default"]) aside{border-right:0;border-bottom:4px solid #ffd23d}:root[data-theme="party"]:not([data-theme="default"]) .brand{width:180px}:root[data-theme="party"]:not([data-theme="default"]) header h1::after{font-size:8px;margin-left:9px}:root[data-theme="party"]:not([data-theme="default"]) .board-letter{min-height:24px;font-size:14px}:root[data-theme="party"]:not([data-theme="default"]) .board-cell.current{outline-width:2px}}
 }
