@@ -6,6 +6,7 @@
     kronix: { label: 'KroniX · Blanco, azul y verde', color: '#f3f8fd' },
     fiesta: { label: 'Fiesta · Colores vivos', color: '#211235' },
     crema: { label: 'Crema', color: '#f7f0e3' },
+    party: { label: 'Bingo Party', color: '#fff4ce' },
   };
   let current = 'default';
   function apply(value) {
