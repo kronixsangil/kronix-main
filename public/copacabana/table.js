@@ -15,6 +15,8 @@ let failures = 0;
 const speedPicker = document.querySelector('#motion-speed');
 const gameControls = document.querySelector('.game-controls');
 const clock = document.querySelector('#turn-clock');
+const returnToRoom = document.querySelector('#return-to-room');
+returnToRoom.addEventListener('click', () => request({ type: 'reset' }));
 const fullscreenButton = document.querySelector('#fullscreen');
 let expanded = false;
 
@@ -138,7 +140,9 @@ function render() {
   const selection = focus === 'name' ? document.activeElement.selectionStart : null;
   content.innerHTML = state.game ? table() : lobby();
   clock.hidden = !state.game || state.game.winner !== null;
+  returnToRoom.hidden = !state.game || state.game.winner === null || state.seat < 0;
   gameControls.classList.toggle('during-game', Boolean(state.game));
+  document.body.classList.toggle('playing', Boolean(state.game));
   gameControls.classList.toggle('grace', Boolean(state.game?.grace));
   if (focus) {
     const target = [...content.querySelectorAll('[data-focus]')].find((element) => element.dataset.focus === focus);
@@ -321,14 +325,16 @@ function table() {
   const current = game.players[game.turn];
   const title = game.winner === -1 ? 'Empate' : game.winner !== null ? 'Ganó ' + game.players[game.winner].name
     : game.prompt ? 'Propuesta de empate' : state.seat === game.turn ? 'Tu turno' : 'Turno de ' + current.name;
-  const canReset = game.winner !== null && state.seat >= 0;
   return `<section class="table ${game.grace ? 'grace' : ''}">
+    <div class="seating">
+    <div class="table-info">
     <div class="table-toolbar"><div><p class="overline">RONDA ${game.rounds + 1}</p><h2>${escape(title)}</h2></div></div>
     <p class="notice">${escape(game.notice)}</p>
     ${game.prompt?.seat === state.seat ? '<div class="actions"><button class="primary" data-action="accept">Aceptar empate</button><button class="outline" data-action="continue">Seguir jugando</button></div>'
       : game.prompt ? `<p>${escape(game.players[game.prompt.seat].name)} está decidiendo si continuar.</p>` : ''}
     <p class="last-move" aria-live="polite">${lastMove(game)}</p>
-    <div class="seating">${seats}
+    </div>
+    ${seats}
     <section class="common" aria-label="Espacios comunes">
       <div class="card-unit"><div class="tile stock" data-anchor="stock"><span aria-hidden="true">✦</span><span class="count">${game.stock}</span></div><small>Robo</small></div>
       ${game.center.map(({ card, rank }, index) => tile('center', index, card, { effective: rank, label: 'Espacio común ' + (index + 1), caption: rank ? ranks[rank] : 'A / ★' })).join('')}
@@ -341,7 +347,6 @@ function table() {
           : state.seat !== game.turn ? 'Espera tu turno.'
             : game.grace ? 'Llena tus espacios y remonta.'
               : 'Selecciona una carta que puedas jugar.'}</p></div><div class="cards" data-anchor="hand-${state.seat}">${mine.hand.map((card, index) => tile('hand', index, card, { seat: state.seat, label: 'Tu mano' })).join('')}</div></section>` : ''}
-    ${canReset ? '<button class="primary" data-action="reset">Volver a la sala</button>' : ''}
   </section>`;
 }
 
@@ -389,7 +394,7 @@ content.addEventListener('click', async (event) => {
   }
   if (data.action) {
     const type = data.action;
-    if (type === 'leave' || type === 'reset') await request({ type });
+    if (type === 'leave') await request({ type });
     else await request({ type: 'draw', accept: type === 'accept', match: state.match, version: state.game.version });
   }
   if (!data.card) return;
