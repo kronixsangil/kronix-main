@@ -15,6 +15,7 @@ const navItems = [
   { label: "Ciudades", href: "#ciudades" },
   { label: "Para negocios", href: "#aliados" },
   { label: "Bingo", href: "/bingo" },
+  { label: "Copacabana", href: "/copacabana" },
 ];
 
 const experiences = [

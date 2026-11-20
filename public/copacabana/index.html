@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101316">
+  <title>Copacabana · KroniX</title>
+  <link rel="stylesheet" href="./table.css">
+  <script type="module" src="./table.js"></script>
+</head>
+<body>
+  <header class="shell masthead">
+    <a href="/" class="brand">Kroni<span>X</span></a>
+    <nav aria-label="Juegos"><a href="/bingo">Bingo</a><a href="/copacabana" aria-current="page">Copacabana</a></nav>
+    <div class="header-tools">
+      <select id="theme" aria-label="Tema de color">
+        <option value="default">Original</option>
+        <option value="neon">Neon Blue · Futurista</option>
+        <option value="kronix">KroniX · Blanco, azul y verde</option>
+        <option value="fiesta">Fiesta · Colores vivos</option>
+        <option value="crema">Crema</option>
+        <option value="party">Bingo Party</option>
+      </select>
+      <button id="invite" class="outline">Copiar invitación</button>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="intro">
+      <div><p class="overline">LA MESA DE KRONIX</p><h1>Copacabana<span>.</span></h1></div>
+      <p id="connection">Conectando a la sala…</p>
+    </section>
+    <p id="message" role="status"></p>
+    <div id="content"></div>
+    <details class="rules">
+      <summary>Cómo jugar Copacabana</summary>
+      <p>Vacía tu montón naranja antes que los demás. Juega una carta de tu mano o la carta superior de uno de tus espacios propios o de tu montón objetivo hacia un espacio común.</p>
+      <p>Las secuencias comunes van de A a K sin importar el palo. El comodín toma el valor siguiente. Al llegar a K se libera ese espacio. Rellena los espacios propios vacíos con cartas de la mano. Con los cuatro llenos, pon una carta sobre cualquiera para remontar y pasar el turno. Los comodines se juegan al centro.</p>
+      <p>Si agotas la mano, robas hasta cinco y sigues. Cada movimiento reinicia el reloj. Al vencer, dispones de cinco segundos para cerrar el turno.</p>
+    </details>
+  </main>
+</body>
+</html>
