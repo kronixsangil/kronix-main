@@ -13,6 +13,45 @@ let requestDone = Promise.resolve();
 let clockOffset = 0;
 let failures = 0;
 const speedPicker = document.querySelector('#motion-speed');
+const gameControls = document.querySelector('.game-controls');
+const clock = document.querySelector('#turn-clock');
+const fullscreenButton = document.querySelector('#fullscreen');
+let expanded = false;
+
+function updateFullscreen() {
+  document.documentElement.classList.toggle('game-fullscreen', expanded);
+  fullscreenButton.setAttribute('aria-pressed', String(expanded));
+  fullscreenButton.textContent = expanded ? 'Salir de pantalla completa' : 'Pantalla completa';
+}
+
+fullscreenButton.addEventListener('click', async () => {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+    return;
+  }
+  if (!expanded) {
+    try {
+      await document.documentElement.requestFullscreen();
+      expanded = true;
+      updateFullscreen();
+      gameControls.scrollIntoView({ block: 'start' });
+      return;
+    } catch { /* Expand the game inside the browser. */ }
+  }
+  expanded = !expanded;
+  updateFullscreen();
+  if (expanded) gameControls.scrollIntoView({ block: 'start' });
+});
+document.addEventListener('fullscreenchange', () => {
+  expanded = Boolean(document.fullscreenElement);
+  updateFullscreen();
+});
+document.addEventListener('keydown', ({ key }) => {
+  if (key === 'Escape' && expanded && !document.fullscreenElement) {
+    expanded = false;
+    updateFullscreen();
+  }
+});
 const speeds = { slow: 700, medium: 430, fast: 220 };
 try {
   const speed = localStorage.getItem('kronix-copacabana-motion');
@@ -98,6 +137,9 @@ function render() {
   const focus = document.activeElement?.dataset.focus;
   const selection = focus === 'name' ? document.activeElement.selectionStart : null;
   content.innerHTML = state.game ? table() : lobby();
+  clock.hidden = !state.game || state.game.winner !== null;
+  gameControls.classList.toggle('during-game', Boolean(state.game));
+  gameControls.classList.toggle('grace', Boolean(state.game?.grace));
   if (focus) {
     const target = [...content.querySelectorAll('[data-focus]')].find((element) => element.dataset.focus === focus);
     target?.focus({ preventScroll: true });
@@ -281,8 +323,7 @@ function table() {
     : game.prompt ? 'Propuesta de empate' : state.seat === game.turn ? 'Tu turno' : 'Turno de ' + current.name;
   const canReset = game.winner !== null && state.seat >= 0;
   return `<section class="table ${game.grace ? 'grace' : ''}">
-    <div class="table-toolbar"><div><p class="overline">RONDA ${game.rounds + 1}</p><h2>${escape(title)}</h2></div>
-      ${game.winner === null ? '<div class="clock"><strong id="seconds"></strong><span>segundos</span></div>' : ''}</div>
+    <div class="table-toolbar"><div><p class="overline">RONDA ${game.rounds + 1}</p><h2>${escape(title)}</h2></div></div>
     <p class="notice">${escape(game.notice)}</p>
     ${game.prompt?.seat === state.seat ? '<div class="actions"><button class="primary" data-action="accept">Aceptar empate</button><button class="outline" data-action="continue">Seguir jugando</button></div>'
       : game.prompt ? `<p>${escape(game.players[game.prompt.seat].name)} está decidiendo si continuar.</p>` : ''}

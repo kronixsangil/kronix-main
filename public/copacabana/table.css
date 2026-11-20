@@ -200,35 +200,35 @@ input:not([type="checkbox"]), select { background: var(--input); }
   gap: 12px;
   margin-block: 14px;
 }
+main.shell { width: min(1560px, calc(100% - 36px)); }
 .seat-north { grid-area: north; }
 .seat-west { grid-area: west; }
 .seat-east { grid-area: east; }
 .seat-south { grid-area: south; }
-.seating .seat { --card-width: clamp(33px, 3.8vw, 56px); margin: 0; max-width: 100%; }
+.seating .seat { --card-width: clamp(48px, 5.8vw, 88px); margin: 0; max-width: 100%; }
 .seating .common {
   grid-area: center;
-  --card-width: clamp(38px, 4.8vw, 68px);
+  --card-width: clamp(48px, 5.4vw, 96px);
   width: 100%;
   margin: 0;
 }
-.seating .seat-west, .seating .seat-east { --card-width: clamp(29px, 3.2vw, 47px); }
-.own-and-goal { display: grid; gap: 8px; }
+.seating .seat-west, .seating .seat-east { --card-width: clamp(40px, 3.9vw, 69px); }
+.own-and-goal { display: flex; align-items: end; gap: 10px; }
 .goal-zone {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 5px 9px;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 4px;
   border: 1px solid #df874c;
   border-radius: 10px;
   background: color-mix(in srgb, #ee8f50 20%, var(--seat));
   color: var(--warn);
   text-transform: uppercase;
   letter-spacing: .08em;
-  font-size: .78rem;
+  font-size: clamp(.56rem, .9vw, .76rem);
   font-weight: 800;
 }
-.goal-zone .tile { width: min(44px, var(--card-width)); }
+.goal-zone .tile { width: calc(var(--card-width) * 1.25); }
 .stack-unit { position: relative; padding-top: 36px; }
 .stack-card {
   position: absolute;
@@ -241,10 +241,13 @@ input:not([type="checkbox"]), select { background: var(--input); }
   border-radius: 7px;
   padding: 3px;
 }
-.stack-unit .corner, .stack-card .corner { font-size: clamp(.79rem, 1.55vw, 1.02rem); }
+.stack-unit .tile .corner { font-size: clamp(.86rem, 1.9vw, 1.45rem); }
+.stack-card .corner { font-size: clamp(.75rem, 1.4vw, .99rem); }
 .stack-card .corner { top: 0; line-height: 16px; }
 .stack-card .pip { position: absolute; right: 3px; top: 0; font-size: .72rem; line-height: 14px; }
-.tile:not(.slot) .corner, .flying-card .corner { font-size: clamp(.95rem, 2.5vw, 1.45rem); }
+.tile:not(.slot) .corner, .flying-card .corner { font-size: clamp(1rem, 2.7vw, 1.85rem); }
+.tile .pip { font-size: clamp(1rem, 3.1vw, 2.5rem); }
+.hand { --card-width: clamp(48px, 12vw, 96px); }
 .last-move {
   min-height: 1.4em;
   color: var(--paper);
@@ -253,6 +256,25 @@ input:not([type="checkbox"]), select { background: var(--input); }
 }
 .last-move b { color: var(--lime); }
 #motion-speed { width: auto; }
+.game-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 7px 12px;
+  margin-block: 0 8px;
+}
+.game-controls.during-game {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.game-controls .clock[hidden] { display: none; }
+.speed-control { display: flex; align-items: center; gap: 7px; font-weight: 650; }
+.speed-control select { min-height: 34px; padding: 4px 7px; }
 .hand .cards { min-width: 1px; min-height: 42px; }
 .flying-card {
   position: absolute;
@@ -270,18 +292,18 @@ input:not([type="checkbox"]), select { background: var(--input); }
   border: 2px solid #fa988c;
 }
 .flying-goal { outline: 3px solid #ffad70; }
-@media (min-width: 800px) {
+@media (min-width: 1200px) {
   .seat-west .own-and-goal, .seat-east .own-and-goal { gap: 6px; }
   .seating .seat-west .cards, .seating .seat-east .cards { gap: 5px; }
 }
-@media (max-width: 799px) {
+@media (max-width: 1199px) {
   .seating {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas: "north north" "west east" "center center" "south south";
     gap: 8px;
   }
-  .seating .seat { --card-width: clamp(38px, 8vw, 54px); }
-  .seating .seat-west, .seating .seat-east { --card-width: clamp(24px, 5.6vw, 48px); }
+  .seating .seat { --card-width: clamp(40px, 9vw, 76px); }
+  .seating .seat-west, .seating .seat-east { --card-width: clamp(19px, 5.75vw, 67px); }
   .seating .seat-west .cards, .seating .seat-east .cards { gap: 3px; }
   .seat .player-heading small { font-size: .75rem; }
   .seat .tile, .stack-card { padding: 2px; }
@@ -289,4 +311,33 @@ input:not([type="checkbox"]), select { background: var(--input); }
   .stack-card .pip { right: 1px; }
   .header-tools { flex-wrap: wrap; }
   .header-tools select:first-child { max-width: min(200px, 100%); }
+}
+@media (max-width: 530px) {
+  main.shell { width: calc(100% - 16px); }
+  .seating .seat-west, .seating .seat-east { padding: 5px; }
+  .seat-west .own-and-goal, .seat-east .own-and-goal { gap: 4px; }
+  .seat-west .goal-zone, .seat-east .goal-zone { padding: 2px; letter-spacing: 0; }
+  .seating .common { --card-width: clamp(37px, 10vw, 52px); }
+  .game-controls { gap: 6px; padding-inline: 6px; }
+  .speed-control { font-size: .84rem; }
+}
+
+#fullscreen { min-height: 34px; padding: 4px 10px; }
+.game-fullscreen .masthead, .game-fullscreen .intro { display: none; }
+.game-fullscreen main.shell { width: min(1720px, calc(100% - 18px)); }
+.game-fullscreen .game-controls { padding-top: 8px; }
+.tile:not(.slot) .corner, .flying-card .corner { font-size: clamp(1.15rem, 3vw, 2.2rem); }
+.stack-unit .tile .corner { font-size: clamp(.92rem, 2.15vw, 1.7rem); }
+.tile .pip { font-size: clamp(1.13rem, 3.6vw, 2.8rem); line-height: 1; }
+.tile .face { align-items: end; padding-bottom: 10%; }
+@media (max-width: 530px) {
+  .game-controls { flex-wrap: wrap; justify-content: space-between; }
+  #fullscreen { font-size: .8rem; }
+  .speed-control { flex: 1; }
+  .game-controls .clock { padding-inline: 6px; }
+  .game-controls .clock strong { font-size: 1.14rem; }
+  .game-controls .clock span { font-size: .75rem; }
+  .seat-west .stack-unit .tile .corner, .seat-east .stack-unit .tile .corner { font-size: clamp(.71rem, 3vw, .92rem); }
+  .seat-west .tile .pip, .seat-east .tile .pip { font-size: clamp(.8rem, 4vw, 1.15rem); }
+  .tile .count { font-size: .62rem; }
 }

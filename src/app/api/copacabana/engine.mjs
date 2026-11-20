@@ -72,12 +72,12 @@ export function startGame(players, settings, now) {
     }
     player.goal = stock.splice(-settings.goal);
   }
-  resetClock(game, now);
+  resetClock(game, now, true);
   return game;
 }
 
-function resetClock(game, now) {
-  game.deadline = now + game.settings.seconds * 1000;
+function resetClock(game, now, opening = false) {
+  game.deadline = now + game.settings.seconds * (opening ? 2000 : 1000);
   game.botAt = now + 700;
 }
 
@@ -107,7 +107,7 @@ function nextTurn(game, now) {
   game.grace = false;
   const player = game.players[game.turn];
   draw(game, player);
-  resetClock(game, now);
+  resetClock(game, now, true);
   if (game.turns % game.players.length !== 0) return;
   game.rounds++;
   game.quiet = game.progress ? 0 : game.quiet + 1;
@@ -202,7 +202,7 @@ export function decide(game, accept, now) {
   else {
     game.prompt = null;
     game.notice = 'La partida continúa.';
-    resetClock(game, now);
+    resetClock(game, now, game.turnMoves === 0);
   }
 }
 
@@ -228,19 +228,92 @@ function forceClose(game, now) {
   }
 }
 
+function nextRanks(board) {
+  return board.map((rank) => rank + 1);
+}
+
+function threat(board, rivals) {
+  const next = nextRanks(board);
+  return rivals.reduce((cost, { goal, count, exposed, immediate }) => {
+    const urgency = count === 1 ? 3.5 : count <= 3 ? 1.7 : 1;
+    if (goal === 0 || next.includes(goal)) return cost + 27 * urgency * immediate;
+    const bridge = goal === 1 ? 13 : goal - 1;
+    if (next.includes(bridge) && (exposed.includes(bridge) || exposed.includes(0))) {
+      return cost + 10 * urgency * immediate;
+    }
+    return cost;
+  }, 0);
+}
+
+function candidatesForBot(position) {
+  const { hand, slots, goal, board } = position;
+  const next = nextRanks(board);
+  const cards = [
+    ...(goal ? [{ from: 'goal', index: 0, card: goal }] : []),
+    ...hand.map((card, index) => ({ from: 'hand', index, card })),
+    ...slots.flatMap((pile, index) => pile.length ? [{ from: 'slot', index, card: top(pile) }] : []),
+  ];
+  return cards.flatMap((source) => next.flatMap((rank, to) =>
+    next.indexOf(rank) === to && (source.card.rank === rank || source.card.rank === 0)
+      ? [{ ...source, target: 'center', to }] : []));
+}
+
+function evaluateBotPlay(position, move, rivals, depth, baseline) {
+  const { board, hand, slots, goal } = position;
+  const card = move.from === 'goal' ? goal : move.from === 'hand' ? hand[move.index] : top(slots[move.index]);
+  const advanced = board.map((rank, index) => index === move.to ? (rank + 1) % 13 : rank);
+  const risk = threat(advanced, rivals) - baseline;
+  if (move.from === 'goal') return 125 - risk * .35;
+  const remaining = move.from === 'hand' ? hand.filter((_, index) => index !== move.index) : hand;
+  const piles = move.from === 'slot' ? slots.map((pile, index) => index === move.index ? pile.slice(0, -1) : pile) : slots;
+  const holes = piles.filter((pile) => !pile.length).length;
+  const normals = remaining.filter(({ rank }) => rank !== 0).length;
+  const score = (move.from === 'hand' ? 5 : 3) + (remaining.length ? 0 : 11)
+    - (card.rank === 0 ? 9 : 0) - (holes > normals && remaining.length ? 28 : 0) - (risk > 0 ? risk : risk * .45);
+  if (depth === 1) return score;
+  const next = { board: advanced, hand: remaining, slots: piles, goal };
+  const futures = candidatesForBot(next);
+  const updatedThreat = baseline + risk;
+  const follow = Math.max(0, ...futures.map((future) => evaluateBotPlay(next, future, rivals, depth - 1, updatedThreat)));
+  return score + follow * .72;
+}
+
 function botMove(game, now) {
   const player = game.players[game.turn];
   const moves = legalMoves(game);
   const own = moves.filter(({ target }) => target === 'slot');
   const holes = player.slots.filter((pile) => !pile.length).length;
   const normals = player.hand.filter((card) => card.rank !== 0).length;
+  const position = {
+    board: game.center.map(({ rank }) => rank),
+    hand: player.hand,
+    slots: player.slots.map((pile) => pile.slice(-3)),
+    goal: top(player.goal),
+  };
+  const rivals = game.players.flatMap(({ goal, slots }, index) => index === game.turn || !goal.length ? [] : [{
+    goal: top(goal).rank,
+    count: goal.length,
+    exposed: slots.map((pile) => top(pile)?.rank),
+    immediate: index === (game.turn + 1) % game.players.length ? 1 : .55,
+  }]);
+  const baseline = threat(position.board, rivals);
+  const ownScore = ({ index, to }) => {
+    const rank = player.hand[index].rank;
+    const under = top(player.slots[to])?.rank;
+    const goal = position.goal?.rank;
+    const helpsGoal = goal && rank < goal && goal - rank <= 3 ? 4 - (goal - rank) : 0;
+    return (under === rank + 1 ? 4 : 0) + (rank === 1 ? 3 : 0) + helpsGoal
+      + (nextRanks(position.board).includes(rank) ? 1 : 0) - (under === 1 ? 4 : 0);
+  };
+  const rankedOwn = own.map((move) => ({ move, score: ownScore(move) })).sort((a, b) => b.score - a.score);
   const center = moves.filter(({ target }) => target === 'center');
-  const chosen = center.find(({ from }) => from === 'goal')
-    ?? (game.turnMoves >= 12 && own.length ? pick(own) : undefined)
-    ?? (holes && normals <= holes + 1 ? own[0] : undefined)
-    ?? center.find(({ from, index }) => from === 'hand' && player.hand[index].rank !== 0)
-    ?? center.find(({ from, index }) => from === 'slot' && (player.slots[index].length > 1 || normals > holes + 1))
-    ?? (own.length ? pick(own) : center[0]);
+  const rankedCenter = center.map((move) => ({ move, score: evaluateBotPlay(position, move, rivals, 3, baseline) }))
+    .sort((a, b) => b.score - a.score);
+  const best = rankedCenter[0];
+  const chosen = rankedCenter.find(({ move }) => move.from === 'goal')?.move
+    ?? (game.turnMoves >= 16 && own.length ? rankedOwn[0].move : undefined)
+    ?? (holes && normals <= holes && best?.score < 45 ? rankedOwn[0]?.move : undefined)
+    ?? (best && (!own.length || best.score > Math.max(3, rankedOwn[0].score)) ? best.move : rankedOwn[0]?.move);
   if (chosen) play(game, chosen, now);
   else {
     game.grace = true;
