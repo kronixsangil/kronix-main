@@ -190,3 +190,103 @@ input:not([type="checkbox"]), select { background: var(--input); }
   .header-tools { flex: 1 1 100%; justify-content: space-between; margin-bottom: 4px; }
   .header-tools select { font-size: .875rem; }
 }
+
+.seating {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: ". north ." "west center east" ". south .";
+  align-items: center;
+  justify-items: center;
+  gap: 12px;
+  margin-block: 14px;
+}
+.seat-north { grid-area: north; }
+.seat-west { grid-area: west; }
+.seat-east { grid-area: east; }
+.seat-south { grid-area: south; }
+.seating .seat { --card-width: clamp(33px, 3.8vw, 56px); margin: 0; max-width: 100%; }
+.seating .common {
+  grid-area: center;
+  --card-width: clamp(38px, 4.8vw, 68px);
+  width: 100%;
+  margin: 0;
+}
+.seating .seat-west, .seating .seat-east { --card-width: clamp(29px, 3.2vw, 47px); }
+.own-and-goal { display: grid; gap: 8px; }
+.goal-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 9px;
+  border: 1px solid #df874c;
+  border-radius: 10px;
+  background: color-mix(in srgb, #ee8f50 20%, var(--seat));
+  color: var(--warn);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .78rem;
+  font-weight: 800;
+}
+.goal-zone .tile { width: min(44px, var(--card-width)); }
+.stack-unit { position: relative; padding-top: 36px; }
+.stack-card {
+  position: absolute;
+  inset: auto 0 calc(var(--depth) * 18px);
+  z-index: auto;
+  display: block;
+  width: var(--card-width);
+  aspect-ratio: 5 / 7;
+  border: 1px solid #e0b450;
+  border-radius: 7px;
+  padding: 3px;
+}
+.stack-unit .corner, .stack-card .corner { font-size: clamp(.79rem, 1.55vw, 1.02rem); }
+.stack-card .corner { top: 0; line-height: 16px; }
+.stack-card .pip { position: absolute; right: 3px; top: 0; font-size: .72rem; line-height: 14px; }
+.tile:not(.slot) .corner, .flying-card .corner { font-size: clamp(.95rem, 2.5vw, 1.45rem); }
+.last-move {
+  min-height: 1.4em;
+  color: var(--paper);
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+}
+.last-move b { color: var(--lime); }
+#motion-speed { width: auto; }
+.hand .cards { min-width: 1px; min-height: 42px; }
+.flying-card {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  box-shadow: 0 6px 22px #0008;
+}
+.flying-back {
+  color: #fff;
+  background: repeating-linear-gradient(45deg, #6b343c 0 2px, #952d43 2px 5px);
+  border: 2px solid #fa988c;
+}
+.flying-goal { outline: 3px solid #ffad70; }
+@media (min-width: 800px) {
+  .seat-west .own-and-goal, .seat-east .own-and-goal { gap: 6px; }
+  .seating .seat-west .cards, .seating .seat-east .cards { gap: 5px; }
+}
+@media (max-width: 799px) {
+  .seating {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "north north" "west east" "center center" "south south";
+    gap: 8px;
+  }
+  .seating .seat { --card-width: clamp(38px, 8vw, 54px); }
+  .seating .seat-west, .seating .seat-east { --card-width: clamp(24px, 5.6vw, 48px); }
+  .seating .seat-west .cards, .seating .seat-east .cards { gap: 3px; }
+  .seat .player-heading small { font-size: .75rem; }
+  .seat .tile, .stack-card { padding: 2px; }
+  .stack-unit .corner, .stack-card .corner { left: 2px; }
+  .stack-card .pip { right: 1px; }
+  .header-tools { flex-wrap: wrap; }
+  .header-tools select:first-child { max-width: min(200px, 100%); }
+}

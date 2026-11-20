@@ -12,6 +12,15 @@ let inFlight = false;
 let requestDone = Promise.resolve();
 let clockOffset = 0;
 let failures = 0;
+const speedPicker = document.querySelector('#motion-speed');
+const speeds = { slow: 700, medium: 430, fast: 220 };
+try {
+  const speed = localStorage.getItem('kronix-copacabana-motion');
+  if (Object.hasOwn(speeds, speed)) speedPicker.value = speed;
+} catch { /* Storage is optional. */ }
+speedPicker.addEventListener('change', () => {
+  try { localStorage.setItem('kronix-copacabana-motion', speedPicker.value); } catch { /* Keep the current choice. */ }
+});
 
 const themeKey = 'kronix-bingo-theme';
 const themeColors = { default: '#101316', neon: '#071321', kronix: '#f3f8fd', fiesta: '#211235', crema: '#f7f0e3', party: '#fff4ce' };
@@ -57,12 +66,15 @@ async function request(action) {
       clockOffset = now - Date.now();
       const key = JSON.stringify(visible);
       if (key !== signature || action) {
+        const previous = state;
+        const before = positions();
         if (next.game?.version !== state?.game?.version || next.match !== state?.match) selected = null;
         if (next.host !== state?.host || next.match !== state?.match) settingsDraft = null;
         state = visible;
         avatar ??= visible.avatars[0];
         signature = key;
         render();
+        animateUpdate(previous, before);
       }
     }
     if (action) say(next.error ?? '');
@@ -138,35 +150,132 @@ function description(card, effective) {
   return ranks[card.rank] + ' ' + card.suit;
 }
 
+function lastMove(game) {
+  const move = game.motion?.findLast(({ type }) => type === 'play');
+  if (!move) return '';
+  const from = { hand: 'mano', goal: 'objetivo', slot: 'espacio propio ' + (move.index + 1) }[move.from];
+  const to = move.target === 'center' ? 'centro ' + (move.to + 1) : 'espacio propio ' + (move.to + 1);
+  return `${escape(game.players[move.seat].name)} · <b>${description(move.card, move.effective)}</b> · ${from} → ${to}`;
+}
+
+function positions() {
+  return new Map([...content.querySelectorAll('[data-anchor]')].map((node) => {
+    const { left, top, width, height } = node.getBoundingClientRect();
+    return [node.dataset.anchor, { x: left + scrollX, y: top + scrollY, width, height, node }];
+  }));
+}
+
+function fly(from, to, duration, delay, card, effective, marked = false) {
+  if (!from?.width || !to?.width) return;
+  const width = Math.max(28, Math.min(68, to.width, to.height * .78));
+  const height = width * 1.35;
+  const point = (rect) => [rect.x + (rect.width - width) / 2, rect.y + (rect.height - height) / 2];
+  const [x, y] = point(from);
+  const [endX, endY] = point(to);
+  const dx = endX - x;
+  const dy = endY - y;
+  const overlay = document.createElement('div');
+  overlay.className = 'flying-card' + (card ? '' : ' flying-back') + (marked ? ' flying-goal' : '');
+  overlay.setAttribute('aria-hidden', 'true');
+  Object.assign(overlay.style, { left: x + 'px', top: y + 'px', width: width + 'px', height: height + 'px' });
+  overlay.innerHTML = card ? face(card, effective) : '✦';
+  document.body.append(overlay);
+  const flight = overlay.animate([
+    { transform: 'translate(0, 0) rotate(-7deg)', opacity: 1 },
+    { transform: `translate(${dx * .55}px, ${dy * .55 - 18}px) rotate(5deg) scale(1.1)`, opacity: 1 },
+    { transform: `translate(${dx}px, ${dy}px)`, opacity: 1, offset: .93 },
+    { transform: `translate(${dx}px, ${dy}px)`, opacity: 0 },
+  ], { duration, delay, easing: 'ease-in-out' });
+  flight.finished.then(() => overlay.remove(), () => overlay.remove());
+}
+
+function animateUpdate(previous, before) {
+  if (!state.game || !Element.prototype.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const after = positions();
+  const duration = speeds[speedPicker.value];
+  if (previous && state.match !== previous.match) {
+    const stock = after.get('stock');
+    const rounds = 9 + Math.max(...state.game.players.map(({ goal }) => goal.count));
+    for (let round = 0; round < rounds; round++) {
+      state.game.players.forEach((player, seat) => {
+        const card = round < 5 ? player.hand?.[round] : round < 9 ? player.slots[round - 5].card : undefined;
+        const key = round < 5 ? 'hand-' + seat + '-' + round : round < 9 ? 'slot-' + seat + '-' + (round - 5) : 'goal-' + seat + '-0';
+        if (round >= 9 && round - 9 >= player.goal.count) return;
+        const target = after.get(key) ?? after.get('hand-' + seat);
+        fly(stock, target, duration * .58, (round + seat / 4) * duration / rounds, card);
+      });
+    }
+    return;
+  }
+  if (previous?.match !== state.match) return;
+  const lastId = previous.game?.motion?.at(-1)?.id ?? 0;
+  const events = (state.game.motion ?? []).filter(({ id }) => id > lastId).slice(-12);
+  let delay = 0;
+  for (const event of events) {
+    if (event.type === 'play') {
+      const from = event.from + '-' + event.seat + '-' + event.index;
+      const to = event.target === 'center' ? 'center-' + event.to : 'slot-' + event.seat + '-' + event.to;
+      const hand = 'hand-' + event.seat;
+      fly(before.get(from) ?? after.get(from) ?? before.get(hand) ?? after.get(hand), after.get(to),
+        duration, delay, event.card, event.effective, event.from === 'goal');
+      delay += duration * .7;
+    } else if (event.type === 'draw') {
+      for (let i = 0; i < event.count; i++) {
+        fly(after.get('stock'), after.get('hand-' + event.seat), duration * .6, delay + i * duration * .12);
+      }
+      delay += duration * .25;
+    } else {
+      const complete = event.type === 'complete';
+      const from = complete ? 'center-' + event.to : event.from;
+      const to = complete ? 'completed' : 'stock';
+      fly(after.get(from), after.get(to), duration * .6, delay);
+      delay += duration * .13;
+    }
+  }
+}
+
 function tile(kind, index, card, options = {}) {
-  const { count, viewOnly, effective, caption, label } = options;
+  const { count, viewOnly, effective, caption, label, seat, cards = [] } = options;
   const source = !viewOnly && state.game.moves.some((move) => move.from === kind && move.index === index);
   const destination = !viewOnly && selected && state.game.moves.some((move) =>
     move.from === selected.kind && move.index === selected.index && move.target === kind && move.to === index);
   const active = source && selected?.kind === kind && selected.index === index;
+  const visibleCards = cards.map((item) => description(item)).join(', ');
+  const accessible = escape(label + ', ' + description(card, effective) + (count ? ', ' + count + ' cartas' : '')
+    + (cards.length > 1 ? ', de encima hacia abajo: ' + visibleCards : ''));
   const attrs = source || destination
-    ? `button type="button" data-card="${kind}" data-index="${index}" data-focus="${kind}-${index}" aria-label="${escape(label + ', ' + description(card, effective))}" aria-pressed="${Boolean(active)}"`
-    : `div role="img" aria-label="${escape(label + ', ' + description(card, effective) + (count ? ', ' + count + ' cartas' : ''))}"`;
+    ? `button type="button" data-card="${kind}" data-index="${index}" data-focus="${kind}-${index}" aria-label="${accessible}" aria-pressed="${Boolean(active)}"`
+    : `div role="img" aria-label="${accessible}"`;
   const tag = source || destination ? 'button' : 'div';
-  return `<div class="card-unit"><${attrs} class="tile ${kind} ${destination ? 'destination' : ''} ${active ? 'selected' : ''} ${card ? 'has-card' : ''}">
+  const anchor = kind === 'center' ? 'center-' + index : kind + '-' + seat + '-' + index;
+  const buried = cards.slice(1).reverse().map((item, layer) =>
+    `<span class="stack-card" style="--depth:${cards.length - 1 - layer}" aria-hidden="true">${face(item)}</span>`).join('');
+  return `<div class="card-unit ${kind === 'slot' ? 'stack-unit' : ''}">${buried}<${attrs} data-anchor="${anchor}" class="tile ${kind} ${destination ? 'destination' : ''} ${active ? 'selected' : ''} ${card ? 'has-card' : ''}">
     ${face(card, effective)}${count ? `<span class="count">${count}</span>` : ''}</${tag}>${caption ? `<small>${caption}</small>` : ''}</div>`;
 }
 
-function seatPanel(player, index) {
+function seatPanel(player, index, position) {
   const game = state.game;
   const mine = index === state.seat;
-  return `<section class="seat ${mine ? 'mine' : ''} ${index === game.turn ? 'active-seat' : ''}" aria-label="${escape(player.name)}">
-    <div class="player-heading"><span class="avatar">${player.avatar}</span><div><strong>${escape(player.name)}</strong><small>${mine ? 'Tú' : player.bot ? 'Bot' : 'Jugador'} · ${player.handCount} en mano</small></div></div>
-    <div class="cards">${player.slots.map(({ card, count }, slot) => tile('slot', slot, card, {
-      count, viewOnly: !mine, label: 'Espacio propio ' + (slot + 1),
-    })).join('')}${tile('goal', 0, player.goal.card, { count: player.goal.count, viewOnly: !mine, label: 'Montón objetivo', caption: 'Objetivo' })}</div>
+  return `<section class="seat seat-${position} ${mine ? 'mine' : ''} ${index === game.turn ? 'active-seat' : ''}" aria-label="${escape(player.name)}">
+    <div class="player-heading" ${mine ? '' : `data-anchor="hand-${index}"`}><span class="avatar">${player.avatar}</span><div><strong>${escape(player.name)}</strong><small>${mine ? 'Tú' : player.bot ? 'Bot' : 'Jugador'} · ${player.handCount} en mano</small></div></div>
+    <div class="own-and-goal"><div class="cards">${player.slots.map(({ card, count, cards }, slot) => tile('slot', slot, card, {
+      count, cards, seat: index, viewOnly: !mine, label: 'Espacio propio ' + (slot + 1),
+    })).join('')}</div><div class="goal-zone"><span>Objetivo</span>${tile('goal', 0, player.goal.card, {
+      count: player.goal.count, seat: index, viewOnly: !mine, label: 'Montón objetivo',
+    })}</div></div>
   </section>`;
 }
 
 function table() {
   const game = state.game;
   const mine = game.players[state.seat];
-  const opponents = game.players.map((player, index) => index === state.seat ? '' : seatPanel(player, index)).join('');
+  const layout = { 2: ['south', 'north'], 3: ['south', 'west', 'east'], 4: ['south', 'west', 'north', 'east'] }[game.players.length];
+  const origin = Math.max(0, state.seat);
+  const seats = layout.map((position, offset) => {
+    const index = (origin + offset) % game.players.length;
+    return seatPanel(game.players[index], index, position);
+  }).join('');
   const current = game.players[game.turn];
   const title = game.winner === -1 ? 'Empate' : game.winner !== null ? 'Ganó ' + game.players[game.winner].name
     : game.prompt ? 'Propuesta de empate' : state.seat === game.turn ? 'Tu turno' : 'Turno de ' + current.name;
@@ -177,19 +286,20 @@ function table() {
     <p class="notice">${escape(game.notice)}</p>
     ${game.prompt?.seat === state.seat ? '<div class="actions"><button class="primary" data-action="accept">Aceptar empate</button><button class="outline" data-action="continue">Seguir jugando</button></div>'
       : game.prompt ? `<p>${escape(game.players[game.prompt.seat].name)} está decidiendo si continuar.</p>` : ''}
-    <div class="opponents">${opponents}</div>
+    <p class="last-move" aria-live="polite">${lastMove(game)}</p>
+    <div class="seating">${seats}
     <section class="common" aria-label="Espacios comunes">
-      <div class="card-unit"><div class="tile stock"><span aria-hidden="true">✦</span><span class="count">${game.stock}</span></div><small>Robo</small></div>
+      <div class="card-unit"><div class="tile stock" data-anchor="stock"><span aria-hidden="true">✦</span><span class="count">${game.stock}</span></div><small>Robo</small></div>
       ${game.center.map(({ card, rank }, index) => tile('center', index, card, { effective: rank, label: 'Espacio común ' + (index + 1), caption: rank ? ranks[rank] : 'A / ★' })).join('')}
-      <div class="completed"><strong>${game.completed}</strong><small>Completadas</small></div>
-    </section>
-    ${mine ? seatPanel(mine, state.seat) : '<p class="notice">Estás viendo la partida como visitante.</p>'}
+      <div class="completed" data-anchor="completed"><strong>${game.completed}</strong><small>Completadas</small></div>
+    </section></div>
+    ${mine ? '' : '<p class="notice">Estás viendo la partida como visitante.</p>'}
     ${mine ? `<section class="hand"><div><h3>Tu mano</h3><p>${selected ? 'Elige un destino iluminado.'
       : game.winner !== null ? 'Partida terminada.'
         : game.prompt ? 'La mesa está en pausa.'
           : state.seat !== game.turn ? 'Espera tu turno.'
             : game.grace ? 'Llena tus espacios y remonta.'
-              : 'Selecciona una carta que puedas jugar.'}</p></div><div class="cards">${mine.hand.map((card, index) => tile('hand', index, card, { label: 'Tu mano' })).join('')}</div></section>` : ''}
+              : 'Selecciona una carta que puedas jugar.'}</p></div><div class="cards" data-anchor="hand-${state.seat}">${mine.hand.map((card, index) => tile('hand', index, card, { seat: state.seat, label: 'Tu mano' })).join('')}</div></section>` : ''}
     ${canReset ? '<button class="primary" data-action="reset">Volver a la sala</button>' : ''}
   </section>`;
 }

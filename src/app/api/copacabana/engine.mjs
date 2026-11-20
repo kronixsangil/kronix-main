@@ -23,18 +23,35 @@ function deck(jokers) {
   return shuffle(cards);
 }
 
-function recycle(game) {
-  if (game.completed.length) return shuffle(game.completed.splice(0));
-  const buried = game.players.flatMap((player) => player.slots.flatMap((pile) => pile.splice(0, Math.max(0, pile.length - 1))));
-  if (buried.length) return shuffle(buried);
-  return shuffle(game.center.flatMap(({ cards }) => cards.splice(0, Math.max(0, cards.length - 1))));
+function record(game, event) {
+  game.motion ??= [];
+  const id = (game.motion.at(-1)?.id ?? 0) + 1;
+  game.motion.push({ ...event, id });
+  if (game.motion.length > 32) game.motion.shift();
 }
 
-function draw(game, player) {
+function recycle(game) {
+  const collect = (pile, keep, from) => {
+    const cards = pile.splice(0, Math.max(0, pile.length - keep));
+    if (cards.length) record(game, { type: 'collect', from, count: cards.length });
+    return cards;
+  };
+  if (game.completed.length) return shuffle(collect(game.completed, 0, 'completed'));
+  const buried = game.players.flatMap((player, seat) =>
+    player.slots.flatMap((pile, slot) => collect(pile, 1, 'slot-' + seat + '-' + slot)));
+  if (buried.length) return shuffle(buried);
+  return shuffle(game.center.flatMap(({ cards }, index) => collect(cards, 1, 'center-' + index)));
+}
+
+function draw(game, player, initial = false) {
+  const before = player.hand.length;
   while (player.hand.length < 5) {
     if (!game.stock.length) game.stock = recycle(game);
     if (!game.stock.length) break;
     player.hand.push(game.stock.pop());
+  }
+  if (!initial && player.hand.length > before) {
+    record(game, { type: 'draw', seat: game.players.indexOf(player), count: player.hand.length - before });
   }
 }
 
@@ -48,7 +65,7 @@ export function startGame(players, settings, now) {
     notice: 'Comenzó la partida.',
   };
   for (const player of game.players) {
-    draw(game, player);
+    draw(game, player, true);
     for (const pile of player.slots) {
       const index = stock.findLastIndex((card) => card.rank !== 0);
       pile.push(stock.splice(index, 1)[0]);
@@ -136,10 +153,13 @@ export function play(game, move, now) {
   const player = game.players[game.turn];
   game.version++;
   game.turnMoves++;
+  const seat = game.turn;
   if (move.target === 'slot') {
     const pile = player.slots[move.to];
     const closesTurn = pile.length > 0;
-    pile.push(player.hand.splice(move.index, 1)[0]);
+    const card = player.hand.splice(move.index, 1)[0];
+    pile.push(card);
+    record(game, { type: 'play', seat, from: 'hand', index: move.index, target: 'slot', to: move.to, card });
     if (closesTurn) {
       game.notice = player.name + ' remontó y terminó su turno.';
       nextTurn(game, now);
@@ -154,8 +174,10 @@ export function play(game, move, now) {
   const pile = game.center[move.to];
   pile.cards.push(card);
   pile.rank++;
+  record(game, { type: 'play', seat, from: move.from, index: move.index, target: 'center', to: move.to, card, effective: pile.rank });
   game.notice = player.name + ' jugó ' + (card.rank === 0 ? 'un comodín' : 'al centro') + '.';
   if (pile.rank === 13) {
+    record(game, { type: 'complete', to: move.to });
     game.completed.push(...pile.cards);
     pile.cards = [];
     pile.rank = 0;
@@ -262,7 +284,7 @@ export function tableView(game, seat) {
       ...profile,
       handCount: hand.length,
       hand: index === seat ? hand : undefined,
-      slots: slots.map((pile) => ({ card: top(pile), count: pile.length })),
+      slots: slots.map((pile) => ({ card: top(pile), count: pile.length, cards: pile.slice(-3).reverse() })),
       goal: { card: top(goal), count: goal.length },
     })),
     moves: seat === game.turn ? legalMoves(game) : [],
