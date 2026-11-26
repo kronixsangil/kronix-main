@@ -8,14 +8,13 @@ import {
   ShoppingBag, Smartphone, Store, UsersRound, X, Zap,
 } from "lucide-react";
 import { useState } from "react";
+import GameNavigation from "./GameNavigation";
 
 const navItems = [
   { label: "Ecosistema", href: "#ecosistema" },
   { label: "Qué hacemos", href: "#servicios" },
   { label: "Ciudades", href: "#ciudades" },
   { label: "Para negocios", href: "#aliados" },
-  { label: "Bingo", href: "/bingo" },
-  { label: "Copacabana", href: "/copacabana" },
 ];
 
 const experiences = [
@@ -97,11 +96,11 @@ export default function Home() {
       <header className="site-header">
         <div className="container header-inner">
           <a href="#inicio" aria-label="Ir al inicio"><BrandLogo priority /></a>
-          <nav className="desktop-nav" aria-label="Navegación principal">{navItems.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}</nav>
+          <nav className="desktop-nav" aria-label="Navegación principal">{navItems.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}<GameNavigation /></nav>
           <a className="header-cta" href="#ecosistema">Explorar KroniX <ArrowRight size={17} /></a>
           <button className="menu-button" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú" aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
-        {menuOpen && <nav className="mobile-nav" aria-label="Navegación móvil">{navItems.map((item) => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>)}<a href="#ecosistema" onClick={() => setMenuOpen(false)}>Explorar KroniX</a></nav>}
+        {menuOpen && <nav className="mobile-nav" aria-label="Navegación móvil">{navItems.map((item) => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>)}<GameNavigation /><a href="#ecosistema" onClick={() => setMenuOpen(false)}>Explorar KroniX</a></nav>}
       </header>
 
       <section className="hero" id="inicio">
