@@ -1,6 +1,7 @@
 import questions from './questions.mjs';
 
 export const multipliers = [1, 1, 2, 3, 1];
+export const roundLabels = ['Primera Ronda', 'Segunda Ronda', 'Puntos al Doble', 'Puntos al Triple', 'Desempate'];
 export const phases = ['Cuartos de final', 'Cuartos de final', 'Cuartos de final', 'Cuartos de final', 'Semifinal', 'Semifinal', 'Final'];
 const bracket = [[0, 1], [2, 3], [4, 5]];
 export const newRound = () => ({reveal: [], strikes: 0, award: null, show: true});
@@ -39,11 +40,21 @@ export function namesFor(state, match) {
     return winner === null ? 'Ganador juego ' + (prior + 1) : namesFor(state, prior)[winner];
   });
 }
-function teamSlot(state, match, side) {
+export function teamSlot(state, match, side) {
   if (match < 4) return match * 2 + side;
   const prior = bracket[match - 4][side];
   const winner = winnerFor(state.games[prior]);
   return winner === null ? null : teamSlot(state, prior, winner);
+}
+export function resolveSteal(match, round, played, answer = null) {
+  if (played.strikes !== 3 || played.award) return false;
+  const owner = played.owner ?? 0;
+  const correct = Number.isInteger(answer) && answer >= 0 &&
+    answer < questionFor(match, round).answers.length && !played.reveal.includes(answer);
+  if (correct) played.reveal.push(answer);
+  played.steal = correct ? 'won' : 'missed';
+  played.award = {team:correct ? 1 - owner : owner, points:pointsFor(match, round, played)};
+  return true;
 }
 export function teamScores(state) {
   const teams = Array(8);
@@ -72,7 +83,9 @@ export function projection(state) {
     id: match + ':' + round, phase: phases[match], match: match + 1,
     question: played.show ? question : '', names, scores: scoresFor(game),
     tiles: answers.map((answer, i) => played.reveal.includes(i) ? answer : null),
-    strikes: played.strikes, pool: played.award ? 0 : pointsFor(match, round, played),
+    strikes: played.strikes, stealMiss: played.steal === 'missed',
+    label: played.steal || (played.strikes === 3 && !played.award) ? 'Robo de Puntos' : roundLabels[round],
+    pool: played.award ? 0 : pointsFor(match, round, played),
     multiplier: multipliers[round], reserve: round === 4,
     winner: winner === null ? '' : names[winner],
   };

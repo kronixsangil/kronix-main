@@ -14,10 +14,13 @@ function render(board, effect) {
   $('left-score').textContent = board.scores[0];
   $('right-score').textContent = board.scores[1];
   $('prompt').textContent = board.question || 'Pregunta oculta';
+  $('stage-round').textContent = board.label;
+  $('first-answer').hidden = !board.first;
+  $('first-answer').textContent = board.first ? 'Responde primero · ' + board.first : '';
   $('multiplier').textContent = (board.reserve ? 'Reserva · ' : '') + '×' + board.multiplier;
   $('live-points').textContent = board.pool + ' puntos';
-  $('marks').textContent = '✕'.repeat(board.strikes);
-  $('marks').setAttribute('aria-label', board.strikes + ' errores');
+  $('marks').textContent = '✕'.repeat(board.strikes) + (board.stealMiss ? ' + ✕' : '');
+  $('marks').setAttribute('aria-label', board.strikes + ' errores' + (board.stealMiss ? ' y un fallo de robo' : ''));
   const winner = $('champion');
   winner.hidden = !board.winner;
   winner.textContent = board.winner ? (board.match === 7 ? '¡Campeón! ' : '¡Ganó ') + board.winner + (board.match === 7 ? '' : '!') : '';
@@ -45,6 +48,14 @@ function render(board, effect) {
     clearTimeout(timeout);
     timeout = setTimeout(() => $('flash').textContent = '', 1050);
   }
+  if (effect === 'steal-miss') {
+    $('flash').textContent = '✕';
+    animate($('flash'), 'impact');
+    clearTimeout(timeout);
+    timeout = setTimeout(() => $('flash').textContent = '', 1050);
+  }
+  if (effect === 'complete') animate(tiles, 'board-complete');
+  if (effect === 'buzz') animate($('first-answer'), 'winner-pop');
   if (effect === 'award') {
     animate($('live-points'), 'burst');
     if (board.winner) animate(winner, 'winner-pop');

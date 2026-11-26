@@ -1,4 +1,4 @@
-const CACHE = 'pingos-score-v1';
+const CACHE = 'pingos-score-v2';
 const shell = ['./score.html','./score.mjs','./show.css','./icon-192.png','./icon-512.png'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(shell))));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys =>
