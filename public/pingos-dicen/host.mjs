@@ -1,10 +1,28 @@
 import {phases, newState, questionFor, pointsFor, winnerFor, projection, teamScores} from './game.mjs';
-import {sound, unlockSound} from './sound.mjs';
+import {sound, unlockSound, setVolume} from './sound.mjs';
 
 const $ = id => document.getElementById(id);
 const storageKey = 'kronix.pingos-dicen.v1';
 let state = newState();
 try { state = JSON.parse(sessionStorage.getItem(storageKey)) || state; } catch {}
+let volume = 85;
+try { volume = Number(localStorage.getItem(storageKey + '.volume') ?? 85); } catch {}
+if (!Number.isFinite(volume) || volume < 0 || volume > 100) volume = 85;
+function updateVolume() {
+  $('volume').value = volume;
+  $('volume-value').textContent = volume + ' %';
+  $('test-sound').disabled = state.mute || volume === 0;
+  setVolume(volume / 100);
+}
+updateVolume();
+$('volume').oninput = event => {
+  volume = Number(event.target.value);
+  updateVolume();
+  try {localStorage.setItem(storageKey + '.volume', String(volume));} catch {}
+};
+$('test-sound').onclick = () => {
+  if (!state.mute) sound('hit');
+};
 let screen;
 let room;
 let syncTimer;
@@ -98,6 +116,7 @@ function render() {
   $('left').placeholder = board.names[0];
   $('right').placeholder = board.names[1];
   $('mute').checked = state.mute;
+  $('test-sound').disabled = state.mute || volume === 0;
   $('question').textContent = question;
   $('question-toggle').textContent = played.show ? 'Ocultar pregunta' : 'Mostrar pregunta';
   $('answers').replaceChildren(...answers.map(([answer, votes], i) => {
