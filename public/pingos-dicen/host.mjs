@@ -1,4 +1,4 @@
-import {phases, newState, questionFor, pointsFor, winnerFor, projection, teamScores, roundLabels, teamSlot, resolveSteal} from './game.mjs';
+import {phases, newState, questionFor, pointsFor, winnerFor, projection, teamScores, roundLabels, teamSlot, resolveSteal, answerFaceoff} from './game.mjs';
 import {sound, unlockSound, setVolume, stopEffects} from './sound.mjs';
 
 const $ = id => document.getElementById(id);
@@ -38,7 +38,7 @@ const roundState = () => active().rounds[active().round];
 function publish(effect = '') {
   if (!screen || screen.closed) return;
   const board = projection(state);
-  if (buzzer?.winner != null) board.first = board.names[buzzer.teams.indexOf(buzzer.winner)];
+  if (waitingForBuzz()) board.active = null;
   screen.postMessage({type:'pingos-board', board, effect}, location.origin);
 }
 function change(operation, effect = '') {
@@ -73,7 +73,7 @@ async function syncScores() {
     if (!response.ok) throw new Error();
     const result = await response.json();
     room = {room:result.room, secret:result.secret};
-    $('show-buzzer').disabled = buzzerSlots().includes(null) || !!roundState().award || roundState().strikes === 3;
+    $('show-buzzer').disabled = !canShowBuzzer();
     try {sessionStorage.setItem(storageKey + '.room', JSON.stringify(room));} catch {}
     $('sync-status').textContent = 'Marcadores sincronizados.';
     renderTeamLinks();
@@ -89,20 +89,32 @@ async function syncScores() {
 function buzzerSlots() {
   return [0,1].map(side => teamSlot(state,state.match,side));
 }
+function waitingForBuzz() {
+  return buzzer !== null && buzzer.winner === null;
+}
+function canShowBuzzer() {
+  const played = roundState();
+  return !!room && !buzzer && !buzzerSlots().includes(null) && !played.award &&
+    !played.reveal.length && !played.strikes && (!played.duel || played.duel.turn === 'retry');
+}
 function pollBuzz(id) {
   clearTimeout(buzzTimeout);
   buzzTimeout = setTimeout(async () => {
-    if (buzzer?.id !== id || buzzer.mode !== 'armed' || buzzer.winner != null) return;
+    if (buzzer?.id !== id || buzzer.mode !== 'armed' || buzzer.second != null) return;
     try {
       const query = new URLSearchParams({room:room.room, team:buzzer.teams[0]});
       const response = await fetch('/api/pingos-dicen?' + query, {cache:'no-store',signal:AbortSignal.timeout(3000)});
       if (!response.ok) throw new Error();
       const data = (await response.json()).buzzer;
       if (buzzer?.id === id && data?.id === id && data.winner != null) {
+        const firstPulse = buzzer.winner === null;
         buzzer.winner = data.winner;
-        roundState().owner = buzzer.teams.indexOf(data.winner);
-        saveAndRender('buzz');
-        return;
+        buzzer.second = data.second;
+        const played = roundState();
+        if (firstPulse) played.duel = {first:buzzer.teams.indexOf(data.winner), turn:'first'};
+        if (data.second != null) played.duel.second = buzzer.teams.indexOf(data.second);
+        if (firstPulse || data.second != null) saveAndRender(firstPulse ? 'buzz' : '');
+        if (data.second != null) return;
       }
     } catch {}
     if (buzzer?.id === id) pollBuzz(id);
@@ -119,7 +131,7 @@ function updateBuzzer() {
 }
 $('show-buzzer').onclick = () => {
   const teams = buzzerSlots();
-  if (!room || teams.includes(null)) return;
+  if (!canShowBuzzer()) return;
   buzzer = {id:crypto.randomUUID(), mode:'ready', teams, winner:null};
   updateBuzzer();
 };
@@ -160,6 +172,8 @@ function render() {
   const winner = winnerFor(game);
   const stealing = played.strikes === 3 && !played.award;
   const owner = played.owner ?? 0;
+  const faceoff = ['first','second'].includes(played.duel?.turn);
+  const waiting = waitingForBuzz() || played.duel?.turn === 'retry';
   $('match').value = state.match;
   $('round').value = game.round;
   const regularComplete = game.rounds.slice(0, 4).every(round => round.award);
@@ -174,22 +188,30 @@ function render() {
   $('round-label').textContent = board.label;
   $('possession').replaceChildren(...board.names.map((name,i) => new Option(name,i)));
   $('possession').value = owner;
-  $('possession').disabled = !!played.award || stealing;
-  $('show-buzzer').disabled = !room || buzzerSlots().includes(null) || !!played.award || stealing;
+  $('possession').disabled = !!played.award || stealing || faceoff || waiting;
+  $('show-buzzer').disabled = !canShowBuzzer();
+  $('first-team').textContent = board.first === null ? '—' : board.names[board.first];
+  $('active-team').textContent = waiting || board.active === null ? '—' : board.names[board.active];
   $('arm-buzzer').disabled = buzzer?.mode !== 'ready';
   $('hide-buzzer').disabled = !buzzer;
-  $('buzzer-status').textContent = buzzer?.winner != null ? 'Responde primero ' + board.names[buzzer.teams.indexOf(buzzer.winner)] :
-    buzzer?.mode === 'armed' ? 'Pulsador abierto' : buzzer ? 'Visible y bloqueado' : 'Pulsador oculto';
+  $('buzzer-status').textContent = waitingForBuzz() ? (buzzer.mode === 'armed' ? 'Pulsador abierto' : 'Visible y bloqueado') :
+    board.second !== null ? 'Pulsó después ' + board.names[board.second] :
+    buzzer?.winner != null ? 'Primera pulsación registrada' : 'Pulsador oculto';
   $('question-toggle').textContent = played.show ? 'Ocultar pregunta' : 'Mostrar pregunta';
   $('answers').replaceChildren(...answers.map(([answer, votes], i) => {
     const button = document.createElement('button');
     const shown = played.reveal.includes(i);
     button.className = shown ? 'revealed' : '';
-    button.disabled = shown;
+    button.disabled = shown || waiting;
     button.textContent = (i + 1) + ' · ' + answer + ' · ' + votes + ' votos' + (shown ? ' ✓' : '');
     button.onclick = () => {
       const complete = played.reveal.length + 1 === answers.length;
-      if (stealing) {
+      if (faceoff) {
+        change(() => {
+          answerFaceoff(state.match, game.round, played, i);
+          if (played.duel.turn === 'done') hideBuzzer();
+        }, complete ? 'complete' : 'hit');
+      } else if (stealing) {
         hideBuzzer();
         change(() => resolveSteal(state.match, game.round, played, i), complete ? 'complete' : 'award');
       } else change(() => played.reveal.push(i), complete ? 'complete' : 'hit');
@@ -199,20 +221,24 @@ function render() {
   $('pool').textContent = board.pool;
   $('errors').textContent = played.strikes + ' / 3' + (board.stealMiss ? ' + ✕' : '');
   $('score').textContent = board.scores.join(' – ');
-  $('strike').disabled = !!played.award || (!stealing && played.reveal.length === answers.length);
-  $('strike').textContent = stealing ? '✕ Falló el robo' : '✕ Marcar error';
+  $('strike').disabled = waiting || !!played.award || (!stealing && played.reveal.length === answers.length);
+  $('strike').textContent = faceoff ? '✕ Falló en el cara a cara' : stealing ? '✕ Falló el robo' : '✕ Marcar error';
   $('clear').disabled = played.strikes === 0;
   $('undo').disabled = history.length === 0;
   ['left','right'].forEach((side, i) => {
     const button = $('award-' + side);
     button.textContent = 'Puntos para ' + board.names[i];
-    button.disabled = !!played.award || stealing;
+    button.disabled = !!played.award || stealing || faceoff || waiting;
   });
   $('next').disabled = !played.award || game.round === 4 || (game.round === 3 && winner !== null);
   $('status').textContent = played.award ?
     (played.steal === 'missed' ? 'Robo fallido · ' : played.steal === 'won' ? 'Robo acertado · ' : '') + played.award.points + ' puntos para ' + board.names[played.award.team] + (winner !== null ? ' · Ganó ' + board.names[winner] : '') :
+    played.duel?.turn === 'retry' ? 'Ambos fallaron. Muestra y abre el pulsador para repetir.' :
+    faceoff ? board.names[board.active] + (played.duel.turn === 'first' ? ' responde primero. Busquen la respuesta más votada.' : ' responde. Si supera la primera respuesta, gana el turno.') :
     stealing ? board.names[1 - owner] + ' intenta robar. Revela su acierto o marca el fallo.' :
-    'Elige el equipo que se lleva los puntos cuando termine la ronda.';
+    waitingForBuzz() ? 'Espera la primera pulsación.' :
+    played.duel?.turn === 'done' ? board.names[owner] + ' ganó el turno y sigue jugando.' :
+    'Muestra el pulsador para iniciar el cara a cara, o asigna el turno manualmente.';
 }
 $('project').onclick = () => {
   unlockSound();
@@ -234,6 +260,13 @@ $('question-toggle').onclick = () => change(() => roundState().show = !roundStat
 $('possession').onchange = event => change(() => roundState().owner = Number(event.target.value));
 $('strike').onclick = () => {
   const played = roundState();
+  if (['first','second'].includes(played.duel?.turn)) {
+    change(() => {
+      answerFaceoff(state.match, active().round, played);
+      if (played.duel.turn !== 'second') hideBuzzer();
+    }, 'faceoff-miss');
+    return;
+  }
   if (played.strikes >= 2) hideBuzzer();
   if (played.strikes === 3) change(() => resolveSteal(state.match, active().round, played), 'steal-miss');
   else change(() => played.strikes++, 'miss');

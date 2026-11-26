@@ -35,8 +35,9 @@ if (!/^[a-f0-9-]{36}$/.test(room ?? '') || !/^[0-7]$/.test(team ?? '')) {
     document.querySelector('#team').textContent = name;
     document.querySelector('#points').textContent = points;
     buzzerPanel.hidden = !buzzer;
-    button.disabled = inFlight || buzzer?.mode !== 'armed' || buzzer.winner !== null;
-    note.textContent = buzzer?.winner != null ? (buzzer.winner === Number(team) ? '¡Responden primero!' : 'Responde primero ' + buzzer.winnerName) :
+    button.disabled = inFlight || buzzer?.mode !== 'armed' || buzzer.winner === Number(team) || buzzer.second != null;
+    note.textContent = buzzer?.winner != null ? (buzzer.winner === Number(team) ? '¡Responden primero!' :
+      buzzer.second === Number(team) ? 'Pulsaron de segundos' : 'Responde primero ' + buzzer.winnerName) :
       buzzer?.mode === 'armed' ? '¡Pulsa ahora!' : 'Esperen la señal';
   }
   button.onclick = async () => {

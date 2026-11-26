@@ -44,6 +44,7 @@ const melody = (notes, spacing, duration, gain = .28) =>
   notes.flatMap((pitch, i) => pitch ? [[pitch,i*spacing,duration,gain,'triangle'],
     [pitch*2,i*spacing,duration*.72,gain*.42,'sine']] : []);
 const cues = {
+  'faceoff-miss': [[164,0,.24,.29,'sawtooth',110],[82,0,.27,.24,'sine',55]],
   buzz: [[230,0,.09,.28,'square',440],[620,.09,.17,.30,'triangle']],
   complete: melody([392,494,587,784,0,587,660,784,988,0,784,988,1175,1568],.23,.55),
   intro: melody([262,330,392,523,0,392,523,659,784,0,659,784,1047],.24,.46),

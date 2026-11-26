@@ -56,6 +56,33 @@ export function resolveSteal(match, round, played, answer = null) {
   played.award = {team:correct ? 1 - owner : owner, points:pointsFor(match, round, played)};
   return true;
 }
+export function activeSide(played) {
+  if (played.award || played.duel?.turn === 'retry') return null;
+  if (played.duel?.turn === 'first') return played.duel.first;
+  if (played.duel?.turn === 'second') return 1 - played.duel.first;
+  const owner = played.owner ?? 0;
+  return played.strikes === 3 ? 1 - owner : owner;
+}
+export function answerFaceoff(match, round, played, answer = null) {
+  const duel = played.duel;
+  if (!duel || !['first','second'].includes(duel.turn)) return false;
+  const answers = questionFor(match, round).answers;
+  if (answer !== null && (!Number.isInteger(answer) || !answers[answer] || played.reveal.includes(answer))) return false;
+  const side = activeSide(played);
+  if (answer !== null) played.reveal.push(answer);
+  if (duel.turn === 'first' && answer !== 0) {
+    duel.firstAnswer = answer;
+    duel.turn = 'second';
+  } else if (duel.turn === 'second' && answer === null && duel.firstAnswer === null) {
+    duel.turn = 'retry';
+  } else {
+    const best = duel.firstAnswer;
+    played.owner = duel.turn === 'first' || (best !== null && (answer === null || answers[best][1] >= answers[answer][1]))
+      ? duel.first : side;
+    duel.turn = 'done';
+  }
+  return true;
+}
 export function teamScores(state) {
   const teams = Array(8);
   state.games.forEach((game, match) => {
@@ -84,6 +111,7 @@ export function projection(state) {
     question: played.show ? question : '', names, scores: scoresFor(game),
     tiles: answers.map((answer, i) => played.reveal.includes(i) ? answer : null),
     strikes: played.strikes, stealMiss: played.steal === 'missed',
+    first: played.duel?.first ?? null, second: played.duel?.second ?? null, active:activeSide(played),
     label: played.steal || (played.strikes === 3 && !played.award) ? 'Robo de Puntos' : roundLabels[round],
     pool: played.award ? 0 : pointsFor(match, round, played),
     multiplier: multipliers[round], reserve: round === 4,

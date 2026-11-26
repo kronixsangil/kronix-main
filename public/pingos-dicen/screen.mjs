@@ -15,8 +15,12 @@ function render(board, effect) {
   $('right-score').textContent = board.scores[1];
   $('prompt').textContent = board.question || 'Pregunta oculta';
   $('stage-round').textContent = board.label;
-  $('first-answer').hidden = !board.first;
-  $('first-answer').textContent = board.first ? 'Responde primero · ' + board.first : '';
+  $('first-answer').hidden = board.first == null;
+  $('first-answer').textContent = board.first == null ? '' : 'Pulsó primero · ' + board.names[board.first];
+  $('active-answer').hidden = board.active == null;
+  $('active-answer').textContent = board.active == null ? '' : 'Equipo activo · ' + board.names[board.active];
+  $('left-name').closest('.score-card').classList.toggle('active-team', board.active === 0);
+  $('right-name').closest('.score-card').classList.toggle('active-team', board.active === 1);
   $('multiplier').textContent = (board.reserve ? 'Reserva · ' : '') + '×' + board.multiplier;
   $('live-points').textContent = board.pool + ' puntos';
   $('marks').textContent = '✕'.repeat(board.strikes) + (board.stealMiss ? ' + ✕' : '');
@@ -48,7 +52,7 @@ function render(board, effect) {
     clearTimeout(timeout);
     timeout = setTimeout(() => $('flash').textContent = '', 1050);
   }
-  if (effect === 'steal-miss') {
+  if (effect === 'steal-miss' || effect === 'faceoff-miss') {
     $('flash').textContent = '✕';
     animate($('flash'), 'impact');
     clearTimeout(timeout);

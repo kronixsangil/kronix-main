@@ -64,6 +64,7 @@ function teamView(state, team) {
     ...state.teams[team],
     ...(buzzer?.teams.includes(team) ? {buzzer:{
       id:buzzer.id, mode:buzzer.mode, winner:buzzer.winner,
+      second:buzzer.second ?? null,
       winnerName:buzzer.winner === null ? '' : state.teams[buzzer.winner].name,
     }} : {}),
   };
@@ -106,8 +107,10 @@ export async function POST(request) {
     try {
       const state = await command(room, current => {
         const buzzer = current?.buzzer;
-        if (!buzzer || buzzer.id !== id || buzzer.mode !== 'armed' || buzzer.winner !== null || !buzzer.teams.includes(team)) return null;
-        return {...current, buzzer:{...buzzer, winner:team}};
+        if (!buzzer || buzzer.id !== id || buzzer.mode !== 'armed' || !buzzer.teams.includes(team) ||
+            buzzer.winner === team || buzzer.second != null) return null;
+        const entry = buzzer.winner === null ? {winner:team} : {second:team};
+        return {...current, buzzer:{...buzzer, ...entry}};
       });
       return state ? reply(teamView(state,team)) : reply({error:'Marcador pendiente.'},404);
     } catch { return reply({error:'Pulsador no disponible.'},503); }
@@ -122,7 +125,7 @@ export async function POST(request) {
     if (!uuid.test(buzzer.id ?? '') || !['ready','armed'].includes(buzzer.mode) ||
       !Array.isArray(buzzer.teams) || buzzer.teams.length !== 2 || new Set(buzzer.teams).size !== 2 ||
       buzzer.teams.some(team => !Number.isInteger(team) || team < 0 || team > 7)) return reply({error:'Pulsador inválido.'},400);
-    buzzer = {id:buzzer.id, mode:buzzer.mode, teams:buzzer.teams, winner:null};
+    buzzer = {id:buzzer.id, mode:buzzer.mode, teams:buzzer.teams, winner:null, second:null};
   }
   try {
     secret ??= randomUUID();
@@ -131,7 +134,7 @@ export async function POST(request) {
     const state = await command(room, previous => ({
       teams,
       buzzer:buzzer && previous?.buzzer?.id === buzzer.id && previous.buzzer.winner !== null
-        ? {...buzzer, winner:previous.buzzer.winner} : buzzer ?? null,
+        ? {...buzzer, winner:previous.buzzer.winner, second:previous.buzzer.second ?? null} : buzzer ?? null,
     }));
     return reply({room,secret,winner:state.buzzer?.winner ?? null});
   } catch { return reply({error:'No se pudo sincronizar el marcador.'},503); }
